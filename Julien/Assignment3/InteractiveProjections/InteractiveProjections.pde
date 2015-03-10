@@ -1,5 +1,10 @@
-void setup(){
-  size(1000, 1000, P2D);
+int lastPosY;
+float scale = 1;
+float rotX = 0;
+float rotY = 0;
+
+/*void setup(){
+  size(1000, 1000, P3D);
 }
 
 void draw(){
@@ -7,31 +12,62 @@ background(255, 255, 255);
 My3DPoint eye = new My3DPoint(-200, -200, -200);
 My3DPoint origin = new My3DPoint(0, 0, 0);
 My3DBox input3DBox = new My3DBox(origin, 100, 100, 100);
-//rotated around x
-//float[][] transform1 = rotateXMatrix(PI/8);
 
-float [][] transform1 = rotateXMatrix(1.23);
+
+float[][] transform1 = scaleMatrix(scale, scale, scale);
+float[][] rotate1 = rotateXMatrix(rotX);
+float[][] rotate2 = rotateYMatrix(rotY);
+ 
 input3DBox = transformBox(input3DBox, transform1);
+input3DBox = transformBox(input3DBox, rotate1);
+input3DBox = transformBox(input3DBox, rotate2);
 projectBox(eye, input3DBox).render();
 
-//for(int i = 1; i < 10; i++){
-// float [][] transform = scaleMatrix(1.2, 1.2, 1.2);
-// input3DBox = transformBox(input3DBox, transform);
-// projectBox(eye, input3DBox).render();
-//}
 
+}*/
 
-//input3DBox = transformBox(input3DBox, transform1);
-//projectBox(eye, input3DBox).render();
-//rotated and translated
-//float[][] transform2 = translationMatrix(200, 200, 0);
-//input3DBox = transformBox(input3DBox, transform2);
-//projectBox(eye, input3DBox).render();
-//rotated, translated, and scaled
-//float[][] transform3 = scaleMatrix(2, 2, 2);
-//input3DBox = transformBox(input3DBox, transform3);
-//projectBox(eye, input3DBox).render();
+void setup() { size(500, 500, P3D); noStroke();
 }
+void draw() {
+background(200);
+lights();
+camera(mouseX, mouseY, 450, 250, 250, 0, 0, 1, 0); translate(width/2, height/2, 0);
+      rotateX(PI/8);
+      rotateY(PI/8);
+      box(100, 80, 60);
+      translate(100, 0, 0);
+      sphere(50);
+}
+
+
+void mouseMoved(){
+  lastPosY = mouseY;
+}
+
+void mouseDragged(){
+  scale = scale - 0.001 * (lastPosY - mouseY);
+  lastPosY = mouseY;
+}
+
+void keyPressed(){
+  if(key == CODED) {
+    if(keyCode == UP){
+      rotX += 0.1;
+    }
+    else if (keyCode == DOWN){
+      rotX -= 0.1;
+    }
+    else if (keyCode == LEFT){
+      rotY += 0.1;
+    }
+    else if (keyCode == RIGHT){
+      rotY -= 0.1;
+    }
+  }
+}
+
+  
+
 
 My3DPoint euclidian3DPoint (float[] a) {
   My3DPoint result = new My3DPoint(a[0]/a[3], a[1]/a[3], a[2]/a[3]);
