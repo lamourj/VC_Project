@@ -26,6 +26,7 @@ class Ball{
     friction.normalize();
     friction.mult(frictionMagnitude);
     
+    velocity.mult(frictionMagnitude);
     location.add(velocity);
     location.add(friction);
 

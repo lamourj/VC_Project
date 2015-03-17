@@ -4,6 +4,11 @@ float rotZ = 0;
 float lastPosX = 0;
 float lastPosY = 0;
 float moveSpeed = 1;
+float plateDepth = 10;
+float sphereRadius = 8;
+float boxLength = 200;
+
+Mover mover = new Mover();
 
 
 void setup() {
@@ -13,10 +18,13 @@ void setup() {
 void draw() {
   background(200);
   //ambientLight(125,125,0);
-  //camera(mouseX, mouseY, 450, 250, 250, 0, 0, 1, 0); 
+  //camera(width, -height, 20, 250, 250, 0, 0, 1, 0); 
   translate(width/2, height/2, 0);
+  rotateX(PI/2);
   
-  boolean displayAxes = true;
+  
+  
+  boolean displayAxes = false;
   if(displayAxes){
     rotateX(0.04);
     rotateZ(0.04);
@@ -40,20 +48,28 @@ void draw() {
   rotateZ(rotZ);
   
   
-  fill(color(0,0,0));
-  box(100, 100, 10);  
+  fill(color(0,255,0));
+  box(boxLength, boxLength, plateDepth);  
+  
+  fill(color(255,0,0));
+  
+  
+  mover.update();
+  mover.checkEdges();
+  mover.display();
+
 }
 
 
 void keyPressed(){
-  if(key == CODED){
+  /*if(key == CODED){
     if(keyCode == LEFT) {
       rotY -= moveSpeed * 0.1;
     }
     else if (keyCode == RIGHT){
       rotY += moveSpeed * 0.1;
     }
-  }
+  }*/
 }
 
 void mouseMoved(){
@@ -62,7 +78,7 @@ void mouseMoved(){
 }
 
 void mouseDragged(){
-  rotZ = rotZ - moveSpeed * 0.01 * (lastPosX - mouseX);
+  rotY = rotY - moveSpeed * 0.01 * (lastPosX - mouseX);
   rotX = rotX - moveSpeed * 0.01 * (-(lastPosY - mouseY));
   
   float extremValue =  (60*2*PI/360);
@@ -70,10 +86,10 @@ void mouseDragged(){
     rotX = extremValue;
   if (rotX < -extremValue)
     rotX = -extremValue;
-  if(rotZ > extremValue)
-    rotZ = extremValue;
-  if(rotZ < -extremValue)
-    rotZ = -extremValue;
+  if(rotY > extremValue)
+    rotY = extremValue;
+  if(rotY < -extremValue)
+    rotY = -extremValue;
   lastPosX = mouseX;
   lastPosY = mouseY;
 }
