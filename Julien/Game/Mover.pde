@@ -5,22 +5,32 @@ class Mover{
   PVector gravity;
   float gravityCst;
   float frictionMag;
+  float normalForce = 1;
+  float mu = 0.05;
 
   Mover(){
     location = new PVector(width/2, height/2, plateDepth + sphereRadius);
     velocity = new PVector(0, 0, 0);
     gravity = new PVector(0,0,0);
     gravityCst = 0.9;
-    frictionMag = 0.95;
   }
   
   void update() {
     gravity.x = sin(rotY) * gravityCst;
     gravity.y = -sin(rotX) * gravityCst;
+    
     println(rotX + " " + rotY + " " + rotZ);
     
+    float frictionMag = normalForce * mu;
+    PVector friction = velocity.get();
+    friction.mult(-1);
+    friction.normalize();
+    friction.mult(frictionMag);
+    
+    
     velocity.add(gravity);
-    velocity.mult(frictionMag);
+    velocity.add(friction);
+    // velocity.mult(frictionMag);
     
     location.add(velocity);
     
