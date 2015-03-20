@@ -84,7 +84,7 @@ class Mover{
         
         // Where is the bullshit ?
         float f = velocity.dot(n);        
-        n.mult(0.001 * f);
+        n.mult(f);
         n.mult(2);
         velocity.sub(n);
       }     
