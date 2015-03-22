@@ -45,6 +45,8 @@ class Ball {
     velocity.add(gravityForce);
     velocity.add(frictionForce);
 
+    checkCylinderCollision();
+    
     location.add(velocity);
 
     
@@ -74,8 +76,6 @@ class Ball {
     if (velocity.mag() <= mu) {
       velocity = new PVector(0, 0, 0);
     }
-    
-    checkCylinderCollision();
   }
 
   void display() {
@@ -109,9 +109,11 @@ class Ball {
       PVector tmp = cylinders.get(i);
       PVector v = new PVector(tmp.x, tmp.y, tmp.z);
       
+      PVector tempLocation = new PVector(location.x, location.y, location.z);
+      tempLocation.add(velocity);
       float d = sqrt(
-        (location.x - v.x) * (location.x - v.x) +
-        (location.z - v.z) * (location.z - v.z));
+        (tempLocation.x - v.x) * (tempLocation.x - v.x) +
+        (tempLocation.z - v.z) * (tempLocation.z - v.z));
         
       boolean collision = d - cylinderBaseSize - radius < 0;
       

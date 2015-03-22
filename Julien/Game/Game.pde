@@ -4,7 +4,7 @@ float rz = 0;
 float lrx = 0;
 float lrz = 0;
 
-float moveSpeed = 1;
+float moveSpeed = 5;
 float extremValue = (60 * 2 * PI / 360);
 
 float plateHeight = 10;
@@ -29,7 +29,8 @@ void setup(){
 
 void draw() {
   background(200);
-  
+  fill(0,0,0);
+  text("mouse speed : " + (int)moveSpeed, 0, 10);
   translate(height/2, width/2, 0);
   println(moveSpeed);
   
