@@ -75,13 +75,12 @@ void draw() {
     boolean xCond = -boxLength / 2 + cylinderBaseSize <= currX && currX <= boxLength / 2 - cylinderBaseSize;
     boolean yCond = -boxLength / 2 + cylinderBaseSize <= currY && currY <= boxLength / 2 - cylinderBaseSize;
     canRegister = xCond && yCond;
-    displayCylinders();
+    //displayCylinders();
     if(xCond && yCond){
       translate(currX, currY, 0);
       shape(closedCylinder);
     }
-    
-    
+        
   } else {
     background(200);
     //ambientLight(125,125,0);
@@ -112,7 +111,7 @@ void draw() {
     
     mover.update();
     mover.checkEdges();
-    mover.checkCylinderCollision();
+    //mover.checkCylinderCollision();
     mover.display();
     
     

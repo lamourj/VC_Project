@@ -30,7 +30,7 @@ class Mover{
 
 
     velocity.add(gravity);
-    velocity.add(friction);
+    //velocity.add(friction);
 
     location.add(velocity);
 
@@ -80,8 +80,7 @@ class Mover{
       
       n = new PVector(location.x - n.x, location.y - n.y, 0);
       
-      if(edgeReached){
-        
+      if(edgeReached){ 
         // Where is the bullshit ?
         float f = velocity.dot(n);        
         n.mult(f);
