@@ -1,13 +1,16 @@
 float rotX = 0;
 float rotY = 0;
 float rotZ = 0;
+
 float lastPosX = 0;
 float lastPosY = 0;
+
 float moveSpeed = 0.25;
 float plateDepth = 10;
-float sphereRadius = 8;
-float boxLength = 200;
-int windowSize = 500;
+final static float sphereRadius = 8;
+final static float boxLength = 200;
+final static int windowSize = 500;
+
 boolean pause;
 boolean canRegister = false;
 
@@ -118,10 +121,8 @@ void draw() {
 
 
 void keyPressed() {
-  if (key == CODED) {
-    if (keyCode == SHIFT)  {
+  if (key == CODED && keyCode == SHIFT) {
       pause = true;
-    }
   }
 }
 
