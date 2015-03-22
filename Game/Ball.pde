@@ -19,7 +19,7 @@ class Ball {
 
   final float radius;
   final static float gravityCst = 0.9;
-  final static float mu = 1.3;
+  final static float mu = 0.13;
   final static float rebounce = 1;
   
   final static boolean drawVector = false;
@@ -44,18 +44,16 @@ class Ball {
 
     velocity.add(gravityForce);
     velocity.add(frictionForce);
-<<<<<<< HEAD
     
     PVector tempLocation = new PVector(location.x, location.y, location.z);
     tempLocation.add(velocity);
-=======
+/*
 
     checkCylinderCollision();
     
     location.add(velocity);
 
->>>>>>> origin/master
-    
+    */
     //Now we check bounds
     if (tempLocation.x >= boxLength/2 || tempLocation.x <= -boxLength/2) {
       velocity.x = -rebounce * velocity.x;
@@ -82,17 +80,13 @@ class Ball {
     if (velocity.mag() <= mu) {
       velocity = new PVector(0, 0, 0);
     }
-<<<<<<< HEAD
+    
     
     
     checkCylinderCollision();
     
     location.add(velocity);
     
-    
-    
-=======
->>>>>>> origin/master
   }
 
   void display() {
@@ -141,10 +135,6 @@ class Ball {
         float f = 2 * n.dot(velocity);
         n.mult(f);
         velocity.sub(n);
-        
-        if (velocity.mag() <= 2 * mu) {
-          velocity = new PVector(0, 0, 0);
-        } 
       }
     }
   }
