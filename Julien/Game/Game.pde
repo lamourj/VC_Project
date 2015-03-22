@@ -32,7 +32,6 @@ void draw() {
   fill(0,0,0);
   text("mouse speed : " + (int)moveSpeed, 0, 10);
   translate(height/2, width/2, 0);
-  println(moveSpeed);
   
   if(!pause){
     rotateX(rx);
@@ -49,17 +48,34 @@ void draw() {
   if(pause){
     pushMatrix();
     rotateX(-PI/2);
+    pushMatrix();
+    ball.display();
+    popMatrix();
     fill(color(255,0,0));
     box(plateLength, plateHeight, plateLength);
     fill(color(0,255,0));
     drawCylinders();
     translate(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
+    
+    PVector v = new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
+    float d = sqrt(
+      (ball.location.x - v.x) * (ball.location.x - v.x) +
+      (ball.location.z - v.z) * (ball.location.z - v.z))
+      - ball.radius
+      - cylinderBaseSize;
+        
     canAddCylinder = (mouseX - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
     && mouseX - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2
     && mouseY - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
-    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2);
+    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2)
+    && d > 0;
+    
     if(canAddCylinder)
-      cylinder();
+      fill(color(0,255,0));
+    else
+      fill(color(255,0,0));
+    
+    cylinder();
     popMatrix();
   }
 }
