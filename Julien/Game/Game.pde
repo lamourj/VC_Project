@@ -29,6 +29,7 @@ void setup(){
 
 void draw() {
   background(200);
+  
   translate(height/2, width/2, 0);
   println(moveSpeed);
   
