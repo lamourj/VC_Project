@@ -1,187 +1,168 @@
-float rotX = 0;
-float rotY = 0;
-float rotZ = 0;
+float rx = 0;
+float rz = 0;
 
-float lastPosX = 0;
-float lastPosY = 0;
+float lrx = 0;
+float lrz = 0;
 
-float moveSpeed = 0.25;
-float plateDepth = 10;
-final static float sphereRadius = 8;
-final static float boxLength = 200;
-final static int windowSize = 500;
+float moveSpeed = 1;
+float extremValue = (60 * 2 * PI / 360);
 
+float plateHeight = 10;
+float plateLength = 300;
+int windowSize = 800;
+
+float cylinderBaseSize = 20;
+float cylinderHeight = 30;
+int cylinderResolution = 30;
+ArrayList<PVector> cylinders = new ArrayList<PVector>();
+
+Ball ball;
 boolean pause;
-boolean canRegister = false;
 
-ArrayList<PVector> cylindersCoords = new ArrayList<PVector>();
-
-// closedCylinder implementation:
-PShape closedCylinder = new PShape();
-float cylinderBaseSize = 12;
-float cylinderHeight = 40;
-int cylinderResolution = 100;
-
-
-Mover mover = new Mover();
-
-
-void setup() {
-  size(windowSize, windowSize, P3D); 
-  noStroke();
-  pause = false;
-  //frameRate(20);
-
-
-  //ClosedCylinder implementation:    
-  float[] x = new float[cylinderResolution + 1];
-  float[] y = new float[cylinderResolution + 1];
-
-  for (int i = 0; i < x.length; i++) {
-    float angle = (TWO_PI / cylinderResolution) * i;
-    x[i] = sin(angle) * cylinderBaseSize;
-    y[i] = cos(angle) * cylinderBaseSize;
-  }
-
-  closedCylinder = createShape();
-  closedCylinder.beginShape(QUAD_STRIP);
-
-  for (int i = 0; i < x.length; i++) {
-    //draw the border of the cylinder
-    closedCylinder.vertex(x[i], y[i], 0);
-    closedCylinder.vertex(x[i], y[i], cylinderHeight);
-  }
-
-  //closedCylinder.beginShape(TRIANGLE_FAN);
-
-  closedCylinder.endShape();
+void setup(){
+  size(windowSize, windowSize, P3D);
+  this.ball = new Ball(20., plateHeight);
+  pause = false;  
 }
-
 
 void draw() {
+  background(200);
+  translate(height/2, width/2, 0);
+  
+  if(!pause){
+    rotateX(rx);
+    rotateZ(rz);
+    fill(color(255,0,0));
+    box(plateLength, plateHeight, plateLength);
 
-  if (pause) {
-    clear();
-    background(200);
-    //camera(width, -height, 0, 250, 250, 250, 0, 0, 0);
-    fill(color(0, 0, 0));
-    translate(width/2, height/2, 0);
-    rotateX(PI/10);
-    fill(color(30, 30, 30));
-    box(boxLength, boxLength, plateDepth);  
-    fill(color(255, 0, 0));
-    float currX = mouseX - windowSize / 2;
-    float currY =  mouseY - windowSize / 2;
-    boolean xCond = -boxLength / 2 + cylinderBaseSize <= currX && currX <= boxLength / 2 - cylinderBaseSize;
-    boolean yCond = -boxLength / 2 + cylinderBaseSize <= currY && currY <= boxLength / 2 - cylinderBaseSize;
-    canRegister = xCond && yCond;
-    //displayCylinders();
-    if(xCond && yCond){
-      translate(currX, currY, 0);
-      shape(closedCylinder);
-    }
-        
-  } else {
-    background(200);
-    //ambientLight(125,125,0);
-    //camera(width, -height, 20, 250, 250, 0, 0, 1, 0); 
-    translate(width/2, height/2, 0);
-    rotateX(PI/2); 
-
-
-    rotateX(rotX);
-    rotateY(rotY);
-    rotateZ(rotZ);
-
-
-    fill(color(0, 255, 0));
-    box(boxLength, boxLength, plateDepth);  
+    drawCylinders();
+    ball.update(rx, rz, plateLength);
+    ball.display();
     
-    
-
-    textSize(20);
-    fill(50);
-    String s = "Move-speed " + int(moveSpeed * 20);
-    stroke(0, 10, 10);
-    text(s, -boxLength/2, boxLength/2 + 5, -30);
-
-    fill(color(255, 0, 0));
-    
-    displayCylinders();
-    
-    mover.update();
-    mover.checkEdges();
-    //mover.checkCylinderCollision();
-    mover.display();
-    
-    
+  }
+  
+  if(pause){
+    pushMatrix();
+    rotateX(-PI/2);
+    box(plateLength, plateHeight, plateLength);
+    drawCylinders();
+    translate(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
+    if(mouseX - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
+    && mouseX - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2
+    && mouseY - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
+    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2)
+      cylinder();
+    popMatrix();
   }
 }
 
 
-void keyPressed() {
-  if (key == CODED && keyCode == SHIFT) {
-      pause = true;
+void mousePressed() {
+  if(pause){
+    cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2));
   }
 }
 
-void keyReleased() {
-  if (key == CODED) {
-    if (keyCode == SHIFT) {
-      pause = false;
-      for(int i = 0; i < cylindersCoords.size(); i++){
-        println(i + " " + cylindersCoords.get(i));
-      }
-      println("____________");
-    }
-  }
+void keyPressed() {
+  if(key == CODED && keyCode == SHIFT)
+    pause = true;
 }
 
-void displayCylinders(){
-  for(int i = 0; i < cylindersCoords.size(); i++){
-     //display Cylinders
-    translate(cylindersCoords.get(i).x, cylindersCoords.get(i).y, 0);
-    shape(closedCylinder);
-    translate(-cylindersCoords.get(i).x, -cylindersCoords.get(i).y, 0);
+void keyReleased(){
+  if(key == CODED && keyCode == SHIFT){
+     pause = !pause;
   }
 }
 
 void mouseMoved() {
-  lastPosX = mouseX;
-  lastPosY = mouseY;
-}
-
-void mousePressed() {
-  if (pause && canRegister) {
-    cylindersCoords.add(new PVector(mouseX - windowSize / 2, mouseY - windowSize / 2, 0));
-  }
+  lrx = mouseX;
+  lrz = mouseY;
 }
 
 void mouseDragged() {
-  rotY = rotY - moveSpeed * 0.01 * (lastPosX - mouseX);
-  rotX = rotX - moveSpeed * 0.01 * (-(lastPosY - mouseY));
-
-  float extremValue =  (60*2*PI/360);
-  if (rotX > extremValue)
-    rotX = extremValue;
-  if (rotX < -extremValue)
-    rotX = -extremValue;
-  if (rotY > extremValue)
-    rotY = extremValue;
-  if (rotY < -extremValue)
-    rotY = -extremValue;
-  lastPosX = mouseX;
-  lastPosY = mouseY;
-}
-
-void mouseWheel(MouseEvent event)  {
-  moveSpeed -= 0.05 * event.getCount();
-  if (moveSpeed < 0.05)
-    moveSpeed = 0.05;
-  if (moveSpeed > 0.5)
-    moveSpeed = 0.5;
+  rx = rx - moveSpeed * 0.01 * -(lrz - mouseY);
+  rz = rz - moveSpeed * 0.01 * (lrx - mouseX);
+  
+  
+  if(rx > extremValue)
+    rx = extremValue;
+  if(rx < -extremValue)
+    rx = -extremValue;
+  if(rz > extremValue)
+    rz = extremValue;
+  if(rz < -extremValue)
+    rz = -extremValue;
+    
+  lrx = mouseX;
+  lrz = mouseY;
+  
 }
 
 
+void cylinder(float baseR, float h, int sides)
+{
+ pushMatrix();
+  
+ translate(0,-cylinderHeight,0);
+  
+  float angle;
+  float[] x = new float[sides+1];
+  float[] z = new float[sides+1];
 
+  //get the x and z position on a circle for all the sides
+  for(int i=0; i < x.length; i++){
+    angle = TWO_PI / (sides) * i;
+    x[i] = sin(angle) * baseR;
+    z[i] = cos(angle) * baseR;
+  }
+  
+  
+  //draw the bottom of the cylinder
+  beginShape(TRIANGLE_FAN);
+ 
+  vertex(0,   0,    0);
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], 0, z[i]);
+  }
+ 
+  endShape();
+ 
+  //draw the center of the cylinder
+  beginShape(QUAD_STRIP); 
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], 0, z[i]);
+    vertex(x[i], cylinderHeight, z[i]);
+  }
+ 
+  endShape();
+ 
+  //draw the top of the cylinder
+  beginShape(TRIANGLE_FAN); 
+ 
+  vertex(0,  cylinderHeight, 0);
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], cylinderHeight, z[i]);
+  }
+ 
+  endShape();
+  
+  popMatrix();
+}
 
+void drawCylinders() {
+  for(int i = 0; i < cylinders.size() ; i++){
+    PVector v = cylinders.get(i); 
+    pushMatrix();
+    fill(color(0,0, 255));
+    translate(v.x, v.y, v.z);
+    cylinder();
+    popMatrix();
+  }
+}
+
+void cylinder(){
+  cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
+}
