@@ -117,6 +117,12 @@ class Ball {
       
       if(collision){
         // Code here
+        PVector n = new PVector(location.x - v.x, 0, location.z - v.z);
+        n.normalize();
+        
+        float f = 2 * n.dot(velocity);
+        n.mult(f);
+        velocity.sub(n);
       }
     }
   }

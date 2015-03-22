@@ -18,23 +18,26 @@ ArrayList<PVector> cylinders = new ArrayList<PVector>();
 
 Ball ball;
 boolean pause;
+boolean canAddCylinder;
 
 void setup(){
   size(windowSize, windowSize, P3D);
   this.ball = new Ball(20., plateHeight);
   pause = false;  
+  canAddCylinder = false;
 }
 
 void draw() {
   background(200);
   translate(height/2, width/2, 0);
+  println(moveSpeed);
   
   if(!pause){
     rotateX(rx);
     rotateZ(rz);
     fill(color(255,0,0));
     box(plateLength, plateHeight, plateLength);
-
+    fill(color(0,255,0));
     drawCylinders();
     ball.update(rx, rz, plateLength);
     ball.display();
@@ -44,13 +47,16 @@ void draw() {
   if(pause){
     pushMatrix();
     rotateX(-PI/2);
+    fill(color(255,0,0));
     box(plateLength, plateHeight, plateLength);
+    fill(color(0,255,0));
     drawCylinders();
     translate(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
-    if(mouseX - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
+    canAddCylinder = (mouseX - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
     && mouseX - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2
     && mouseY - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
-    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2)
+    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2);
+    if(canAddCylinder)
       cylinder();
     popMatrix();
   }
@@ -58,7 +64,7 @@ void draw() {
 
 
 void mousePressed() {
-  if(pause){
+  if(pause && canAddCylinder){
     cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2));
   }
 }
@@ -80,8 +86,8 @@ void mouseMoved() {
 }
 
 void mouseDragged() {
-  rx = rx - moveSpeed * 0.01 * -(lrz - mouseY);
-  rz = rz - moveSpeed * 0.01 * (lrx - mouseX);
+  rx = rx - moveSpeed * 0.001 * -(lrz - mouseY);
+  rz = rz - moveSpeed * 0.001 * (lrx - mouseX);
   
   
   if(rx > extremValue)
@@ -156,11 +162,20 @@ void drawCylinders() {
   for(int i = 0; i < cylinders.size() ; i++){
     PVector v = cylinders.get(i); 
     pushMatrix();
-    fill(color(0,0, 255));
     translate(v.x, v.y, v.z);
     cylinder();
     popMatrix();
   }
+}
+
+void mouseWheel(MouseEvent event) {
+  float e = -event.getCount();
+  moveSpeed = moveSpeed * e;
+  
+  if(moveSpeed < 1)
+    moveSpeed = 1;
+  if(moveSpeed > 10)
+    moveSpeed = 10;
 }
 
 void cylinder(){
