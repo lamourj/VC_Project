@@ -12,7 +12,7 @@ int background= 255;
 void draw(){
   background(background, 255, 255);
   My3DPoint eye = new My3DPoint(0, 0, -500);
-  My3DPoint origin = new My3DPoint(0, 0, 0);
+  My3DPoint origin = new My3DPoint(-50, -50, -50);
   My3DBox input3DBox = new My3DBox(origin, 100, 100, 100);
   
   //rotated around x
