@@ -41,9 +41,13 @@ class Ball {
     frictionForce = velocity.get();
     frictionForce.normalize();
     frictionForce.mult(-mu);
-    
+
     velocity.add(gravityForce);
     velocity.add(frictionForce);
+
+    checkCylinderCollision();
+    
+    location.add(velocity);
 
     
     //Now we check bounds
@@ -66,20 +70,12 @@ class Ball {
       location.z = -boxLength/2;
     } else if (location.z > boxLength/2) {
       location.z = boxLength/2;
-    }
-   
-    
+    } 
+
     //this part simulate the static friction constant (which we set equal to the kinetic friction constant)
     if (velocity.mag() <= mu) {
       velocity = new PVector(0, 0, 0);
     }
-    
-    checkCylinderCollision();
-    
-    location.add(velocity);
-    
-    
-    
   }
 
   void display() {
@@ -114,7 +110,6 @@ class Ball {
       PVector v = new PVector(tmp.x, tmp.y, tmp.z);
       
       PVector tempLocation = new PVector(location.x, location.y, location.z);
-      
       tempLocation.add(velocity);
       float d = sqrt(
         (tempLocation.x - v.x) * (tempLocation.x - v.x) +
@@ -129,6 +124,10 @@ class Ball {
         float f = 2 * n.dot(velocity);
         n.mult(f);
         velocity.sub(n);
+        
+        if (velocity.mag() <= 2 * mu) {
+          velocity = new PVector(0, 0, 0);
+        } 
       }
     }
   }
