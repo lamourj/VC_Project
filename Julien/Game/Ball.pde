@@ -19,7 +19,7 @@ class Ball {
 
   final float radius;
   final static float gravityCst = 0.9;
-  final static float mu = 0.17;
+  final static float mu = 0.3;
   final static float rebounce = 1;
   
   final static boolean drawVector = false;
@@ -103,7 +103,7 @@ class Ball {
     vertex(radius * perp.x, 0, radius * perp.z);
     endShape();
   }
-
+  
   void checkCylinderCollision(){
     for(int i = 0 ; i < cylinders.size() ; i++){
       PVector tmp = cylinders.get(i);
@@ -116,15 +116,18 @@ class Ball {
         (tempLocation.z - v.z) * (tempLocation.z - v.z));
         
       boolean collision = d - cylinderBaseSize - radius < 0;
-      
+    
       if(collision){
-        // Code here
         PVector n = new PVector(location.x - v.x, 0, location.z - v.z);
         n.normalize();
         
         float f = 2 * n.dot(velocity);
         n.mult(f);
         velocity.sub(n);
+        
+        if (velocity.mag() <= 2 * mu) {
+          velocity = new PVector(0, 0, 0);
+        } 
       }
     }
   }

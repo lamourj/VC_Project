@@ -55,19 +55,23 @@ void draw() {
     box(plateLength, plateHeight, plateLength);
     fill(color(0,255,0));
     drawCylinders();
-    translate(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
     
-    PVector v = new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2);
+    float currentX = mouseX - windowSize / 2;
+    float currentY = mouseY - windowSize / 2;
+    translate(currentX, 0, currentY);
+    
+    PVector v = new PVector(currentX, 0, currentY);
     float d = sqrt(
       (ball.location.x - v.x) * (ball.location.x - v.x) +
       (ball.location.z - v.z) * (ball.location.z - v.z))
       - ball.radius
       - cylinderBaseSize;
         
-    canAddCylinder = (mouseX - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
-    && mouseX - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2
-    && mouseY - windowSize / 2 - cylinderBaseSize / 2 > -plateLength / 2 
-    && mouseY - windowSize / 2 + cylinderBaseSize / 2 < plateLength / 2)
+    canAddCylinder = 
+    currentX - cylinderBaseSize / 2 > -plateLength / 2 
+    && currentX + cylinderBaseSize / 2 < plateLength / 2
+    && currentY / 2 - cylinderBaseSize / 2 > -plateLength / 2 
+    && currentY / 2 + cylinderBaseSize / 2 < plateLength / 2
     && d > 0;
     
     if(canAddCylinder)
