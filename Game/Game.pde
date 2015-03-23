@@ -68,10 +68,10 @@ void draw() {
       - cylinderBaseSize;
         
     canAddCylinder = 
-    currentX - cylinderBaseSize / 2 > -plateLength / 2 
-    && currentX + cylinderBaseSize / 2 < plateLength / 2
-    && currentY / 2 - cylinderBaseSize / 2 > -plateLength / 2 
-    && currentY / 2 + cylinderBaseSize / 2 < plateLength / 2
+    currentX - cylinderBaseSize  > -plateLength / 2 
+    && currentX + cylinderBaseSize < plateLength / 2
+    && currentY - cylinderBaseSize > -plateLength / 2 
+    && currentY + cylinderBaseSize < plateLength / 2
     && d > 0;
     
     if(canAddCylinder)
@@ -91,7 +91,7 @@ void mousePressed() {
   }
 }
 
-void keyPressed() {
+void keyPressed() {
   if(key == CODED && keyCode == SHIFT)
     pause = true;
 }
@@ -190,7 +190,7 @@ void drawCylinders() {
   }
 }
 
-void mouseWheel(MouseEvent event) {
+void mouseWheel(MouseEvent event) {
   float e = -event.getCount();
   moveSpeed = moveSpeed * e;
   

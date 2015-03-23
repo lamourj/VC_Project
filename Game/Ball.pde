@@ -48,11 +48,9 @@ class Ball {
     PVector tempLocation = new PVector(location.x, location.y, location.z);
     tempLocation.add(velocity);
 /*
-
     checkCylinderCollision();
     
     location.add(velocity);
-
     */
     //Now we check bounds
     if (tempLocation.x >= boxLength/2 || tempLocation.x <= -boxLength/2) {
@@ -139,4 +137,3 @@ class Ball {
     }
   }
 }
-
