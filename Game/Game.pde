@@ -1,72 +1,205 @@
-float depth = 3000,ry=0,rx=0,rz=0;
+float rx = 0;
+float rz = 0;
 
-float posx,posy;
+float lrx = 0;
+float lrz = 0;
 
-float speed=10;
+float moveSpeed = 5;
+float extremValue = (60 * 2 * PI / 360);
 
-float boxSize = 2000;
+float plateHeight = 10;
+float plateLength = 300;
+int windowSize = 800;
+
+float cylinderBaseSize = 20;
+float cylinderHeight = 30;
+int cylinderResolution = 30;
+ArrayList<PVector> cylinders = new ArrayList<PVector>();
 
 Ball ball;
-
+boolean pause;
+boolean canAddCylinder;
 
 void setup(){
-  size(800,800,P3D);
-  noStroke();
-  ball = new Ball();
+  size(windowSize, windowSize, P3D);
+  this.ball = new Ball(20., plateHeight);
+  pause = false;  
+  canAddCylinder = false;
 }
 
-void draw(){
-  camera(0,-height,depth,0,0,0,0,1,0);
-  directionalLight(50,100,125,0,-1,0);
-  ambientLight(102,200,102);
+void draw() {
   background(200);
+  fill(0,0,0);
+  text("mouse speed : " + (int)moveSpeed, 0, 10);
+  translate(height/2, width/2, 0);
   
+  if(!pause){
+    rotateX(rx);
+    rotateZ(rz);
+    fill(color(255,0,0));
+    box(plateLength, plateHeight, plateLength);
+    fill(color(0,255,0));
+    drawCylinders();
+    ball.update(rx, rz, plateLength);
+    ball.display();
+    
+  }
   
-  
-  
-  
-  rotateX(rx);
-  rotateZ(rz);
-  rotateY(ry);
-  
-  color c = color(100,100,100);
-  fill(c);
-  box(boxSize,50,boxSize);
-  
-  
-  ball.checkEdges(0,0,boxSize,boxSize);
-  ball.update(rx,rz);
-  ball.display();
-  
-  
-}
-
-void keyPressed(){
-  if(key == CODED){
-    if(keyCode == LEFT){
-      ry -=speed*PI/360.  ;
-    }
-    else if (keyCode == RIGHT){
-      ry += speed*PI/360.;
-    }
+  if(pause){
+    pushMatrix();
+    rotateX(-PI/2);
+    pushMatrix();
+    ball.display();
+    popMatrix();
+    fill(color(255,0,0));
+    box(plateLength, plateHeight, plateLength);
+    fill(color(0,255,0));
+    drawCylinders();
+    
+    float currentX = mouseX - windowSize / 2;
+    float currentY = mouseY - windowSize / 2;
+    translate(currentX, 0, currentY);
+    
+    PVector v = new PVector(currentX, 0, currentY);
+    float d = sqrt(
+      (ball.location.x - v.x) * (ball.location.x - v.x) +
+      (ball.location.z - v.z) * (ball.location.z - v.z))
+      - ball.radius
+      - cylinderBaseSize;
+        
+    canAddCylinder = 
+    currentX - cylinderBaseSize  > -plateLength / 2 
+    && currentX + cylinderBaseSize < plateLength / 2
+    && currentY - cylinderBaseSize > -plateLength / 2 
+    && currentY + cylinderBaseSize < plateLength / 2
+    && d > 0;
+    
+    if(canAddCylinder)
+      fill(color(0,255,0));
+    else
+      fill(color(255,0,0));
+    
+    cylinder();
+    popMatrix();
   }
 }
 
-void mousePressed(){
-  posx = mouseX;
-  posy = mouseY;
+
+void mousePressed() {
+  if(pause && canAddCylinder){
+    cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2));
+  }
 }
 
-void mouseDragged(){
-  if(speed*(mouseX-posx)*PI/3600. <=60*PI/360. && -60*PI/360.<= speed*(mouseX-posx)*PI/3600.)
-    rz = speed*(mouseX-posx)*PI/3600.;
-  if(-speed*(mouseY-posy)*PI/3600. <= 60*PI/360. && -60*PI/360.<=-speed*(mouseY-posy)*PI/3600.)
-    rx = -speed*(mouseY-posy)*PI/3600.;
+void keyPressed() {
+  if(key == CODED && keyCode == SHIFT)
+    pause = true;
+}
+
+void keyReleased(){
+  if(key == CODED && keyCode == SHIFT){
+     pause = !pause;
+  }
+}
+
+void mouseMoved() {
+  lrx = mouseX;
+  lrz = mouseY;
+}
+
+void mouseDragged() {
+  rx = rx - moveSpeed * 0.001 * -(lrz - mouseY);
+  rz = rz - moveSpeed * 0.001 * (lrx - mouseX);
+  
+  
+  if(rx > extremValue)
+    rx = extremValue;
+  if(rx < -extremValue)
+    rx = -extremValue;
+  if(rz > extremValue)
+    rz = extremValue;
+  if(rz < -extremValue)
+    rz = -extremValue;
+    
+  lrx = mouseX;
+  lrz = mouseY;
+  
+}
+
+
+void cylinder(float baseR, float h, int sides)
+{
+ pushMatrix();
+  
+ translate(0,-cylinderHeight,0);
+  
+  float angle;
+  float[] x = new float[sides+1];
+  float[] z = new float[sides+1];
+
+  //get the x and z position on a circle for all the sides
+  for(int i=0; i < x.length; i++){
+    angle = TWO_PI / (sides) * i;
+    x[i] = sin(angle) * baseR;
+    z[i] = cos(angle) * baseR;
+  }
+  
+  
+  //draw the bottom of the cylinder
+  beginShape(TRIANGLE_FAN);
+ 
+  vertex(0,   0,    0);
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], 0, z[i]);
+  }
+ 
+  endShape();
+ 
+  //draw the center of the cylinder
+  beginShape(QUAD_STRIP); 
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], 0, z[i]);
+    vertex(x[i], cylinderHeight, z[i]);
+  }
+ 
+  endShape();
+ 
+  //draw the top of the cylinder
+  beginShape(TRIANGLE_FAN); 
+ 
+  vertex(0,  cylinderHeight, 0);
+ 
+  for(int i=0; i < x.length; i++){
+    vertex(x[i], cylinderHeight, z[i]);
+  }
+ 
+  endShape();
+  
+  popMatrix();
+}
+
+void drawCylinders() {
+  for(int i = 0; i < cylinders.size() ; i++){
+    PVector v = cylinders.get(i); 
+    pushMatrix();
+    translate(v.x, v.y, v.z);
+    cylinder();
+    popMatrix();
+  }
 }
 
 void mouseWheel(MouseEvent event) {
-  float e = event.getCount();
+  float e = -event.getCount();
+  moveSpeed = moveSpeed * e;
   
-  if(e+speed>0)
-    speed += e;
+  if(moveSpeed < 1)
+    moveSpeed = 1;
+  if(moveSpeed > 10)
+    moveSpeed = 10;
+}
+
+void cylinder(){
+  cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
 }
