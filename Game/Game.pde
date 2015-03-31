@@ -13,7 +13,7 @@ final static float limitAngle = PI/3;//60°
 final static float boxLength = 2000;
 final static float boxThickness = 50;
 
-final static float cylinderBaseSize = 80.;
+final static float cylinderBaseSize = 75.;
 final static float cylinderHeight = 100.;
 final static int cylinderResolution = 40;
 
@@ -21,6 +21,7 @@ final static float ballSize = 80.;
 
 PShape openCylinder = new PShape();
 PShape disk = new PShape();
+PShape tree;
 
 Ball ball;
 
@@ -60,6 +61,9 @@ void setup() {
   disk.vertex(x[0], 0, y[0]);
   disk.endShape();
   disk.disableStyle();//in order to put custom colors
+  
+  tree = loadShape("arbre.obj");
+  tree.scale(175);
 }
 
 void draw() {
@@ -83,9 +87,11 @@ void draw() {
   box(boxLength, boxThickness, boxLength);
   fill(color(0, 0, 255));
   for (PVector pos : cylinderPos) {
-    drawCylinder(pos);
+    drawTree(pos);
   }
   ball.display();
+  
+
 }
 
 void update() {
@@ -106,20 +112,25 @@ void update() {
 
     if (correctPlacement) {
       fill(color(0, 255, 0, 200));
-      drawCylinder(new PVector(transX, 0, transY));
+      drawTree(new PVector(transX, 0, transY));
     } else {
       fill(color(255, 0, 0, 200));
-      drawCylinder(new PVector(transX, 0, transY));
+      drawTree(new PVector(transX, 0, transY));
     }
   }
 }
 
-void drawCylinder(PVector pos) {
+void drawTree(PVector pos) {
+  pushMatrix();
+  
   translate(pos.x, -boxThickness/2, pos.z);
+  
   shape(openCylinder);
-  translate(0, -cylinderHeight, 0);
-  shape(disk);
-  translate(-pos.x, boxThickness/2 + cylinderHeight, -pos.z);
+  
+  rotateX(PI);
+
+  shape(tree);
+  popMatrix();
 }
 
 void mouseDragged() { //This function controls the movement of the plate
