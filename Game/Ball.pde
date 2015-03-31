@@ -19,12 +19,12 @@ class Ball {
 
   final float radius;
   final static float gravityCst = 0.9;
-  final static float mu = 0.13;
-  final static float rebounce = 1;
+  final static float mu = 0.17;
+  final static float rebounce = 0.8;
   
   final static boolean drawVector = false;
 
-  Ball(float radius, float boxThickness) {    
+  Ball(float radius, float boxThickeness) {    
     location = new PVector(0, -(radius + boxThickness/2), 0);
     gravityForce = new PVector(0, 0, 0);
     velocity = new PVector(0, 0, 0);
@@ -33,7 +33,7 @@ class Ball {
     this.radius = radius;
   }
 
-  void update(float rx, float rz, float boxLength) {
+  void update(float rx, float rz, float boxLength, ArrayList<PVector> cylinders, float cylinderRadius) {
 
     gravityForce.x = sin(rz) * gravityCst;
     gravityForce.z = -sin(rx) * gravityCst;
@@ -44,47 +44,62 @@ class Ball {
 
     velocity.add(gravityForce);
     velocity.add(frictionForce);
-    
-    PVector tempLocation = new PVector(location.x, location.y, location.z);
-    tempLocation.add(velocity);
-/*
-    checkCylinderCollision();
-    
-    location.add(velocity);
-    */
-    //Now we check bounds
-    if (tempLocation.x >= boxLength/2 || tempLocation.x <= -boxLength/2) {
-      velocity.x = -rebounce * velocity.x;
-    }
-
-    if (tempLocation.z >= boxLength/2 || tempLocation.z <= -boxLength/2) {
-      velocity.z = -rebounce * velocity.z;
-    }
-
-    //we prevent overflows
-    if (location.x < -boxLength/2) {
-      location.x = -boxLength/2;
-    } else if (location.x > boxLength/2) {
-      location.x = boxLength/2;
-    }
-
-    if (location.z < -boxLength/2) {
-      location.z = -boxLength/2;
-    } else if (location.z > boxLength/2) {
-      location.z = boxLength/2;
-    } 
 
     //this part simulate the static friction constant (which we set equal to the kinetic friction constant)
+    //it is useful when the plate is not inclined enough
     if (velocity.mag() <= mu) {
       velocity = new PVector(0, 0, 0);
     }
     
-    
-    
-    checkCylinderCollision();
-    
     location.add(velocity);
     
+    //Now we check bounds, on x
+    if (location.x >= boxLength/2){
+      velocity.x = -rebounce * velocity.x;
+      location.x = boxLength/2;
+    }
+    else if(location.x <= -boxLength/2){
+      velocity.x = -rebounce * velocity.x;
+      location.x = -boxLength/2;
+    }
+    
+    //on z
+    if (location.z >= boxLength/2){
+      velocity.z = -rebounce * velocity.z;
+      location.z = boxLength/2;
+    }
+    else if (location.z <= -boxLength/2) {
+      velocity.z = -rebounce * velocity.z;
+      location.z = -boxLength/2;
+    }
+
+    for(PVector pos : cylinders){
+      PVector sub = new PVector(location.x, 0, location.z);
+      sub.sub(new PVector(pos.x, 0, pos.z)); 
+      
+      if(sub.mag() < cylinderRadius + radius){
+        //sub is the normal
+        sub.normalize();
+        
+        PVector x = sub.get();
+        x.mult(2.*velocity.dot(sub));
+        velocity.sub(x);
+        velocity.mult(rebounce);
+        
+        PVector old = new PVector(location.x, 0, location.z);
+        
+        location.add(velocity);
+        
+        //set location
+        old.sub(pos);
+        old.normalize();
+        old.mult(cylinderRadius + radius);
+        old.add(pos);
+
+        location = new PVector(old.x, location.y, old.z); 
+      }
+    }
+
   }
 
   void display() {
@@ -112,28 +127,6 @@ class Ball {
     vertex(radius * perp.x, 0, radius * perp.z);
     endShape();
   }
-  
-  void checkCylinderCollision(){
-    for(int i = 0 ; i < cylinders.size() ; i++){
-      PVector tmp = cylinders.get(i);
-      PVector v = new PVector(tmp.x, tmp.y, tmp.z);
-      
-      PVector tempLocation = new PVector(location.x, location.y, location.z);
-      tempLocation.add(velocity);
-      float d = sqrt(
-        (tempLocation.x - v.x) * (tempLocation.x - v.x) +
-        (tempLocation.z - v.z) * (tempLocation.z - v.z));
-        
-      boolean collision = d - cylinderBaseSize - radius < 0;
-    
-      if(collision && velocity.mag() >= mu){
-        PVector n = new PVector(location.x - v.x, 0, location.z - v.z);
-        n.normalize();
-        
-        float f = 2 * n.dot(velocity);
-        n.mult(f);
-        velocity.sub(n);
-      }
-    }
-  }
+
 }
+
