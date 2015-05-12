@@ -44,7 +44,7 @@ class Ball {
 
     velocity.add(gravityForce);
     velocity.add(frictionForce);
-
+    
     // Here we simulate the static friction (which
     // we set equal to the kinetic friction constant
     // It is useful  when the plate is not tilted enough
@@ -57,23 +57,27 @@ class Ball {
     
     
     // Bounds-check, x axis
-    if (location.x >= boxLength/2){
+    if (location.x >= boxLength/2 - radius){
+      subScore();
       velocity.x = -rebounce * velocity.x;
-      location.x = boxLength/2;
+      location.x = boxLength/2 - radius;
     }
-    else if(location.x <= -boxLength/2){
+    else if(location.x <= -boxLength/2 + radius){
+      subScore();
       velocity.x = -rebounce * velocity.x;
-      location.x = -boxLength/2;
+      location.x = -boxLength/2 + radius;
     }
     
     // z axis
-    if (location.z >= boxLength/2){
+    if (location.z >= boxLength/2 - radius){
+      subScore();
       velocity.z = -rebounce * velocity.z;
-      location.z = boxLength/2;
+      location.z = boxLength/2 - radius;
     }
-    else if (location.z <= -boxLength/2) {
+    else if (location.z <= -boxLength/2 + radius) {
+      subScore();
       velocity.z = -rebounce * velocity.z;
-      location.z = -boxLength/2;
+      location.z = -boxLength/2 + radius;
     }
   
     // Cylinders check :
@@ -84,6 +88,8 @@ class Ball {
       
       if(sub.mag() < cylinderBaseSize + radius) {
         // sub is the normal
+        lastScore = (int)velocity.mag();
+        score += lastScore;
         sub.normalize();
         
         PVector x = sub.get();
@@ -103,6 +109,11 @@ class Ball {
         location = new PVector(old.x, location.y, old.z);
       }
     } 
+  }
+  
+  void subScore() {
+    lastScore = (int)(difficultyLevel*0.1*velocity.mag());
+    score -= lastScore;
   }
 
   void display() {
@@ -155,4 +166,3 @@ class Ball {
     }
   }
 }
-

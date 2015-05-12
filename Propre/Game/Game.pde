@@ -19,6 +19,7 @@ int cylinderResolution = 30;
 ArrayList<PVector> cylinders = new ArrayList<PVector>();
 
 Ball ball;
+float ballRadius = 20;
 boolean pause;
 boolean canAddCylinder;
 
@@ -31,20 +32,39 @@ PGraphics topView;
 int ecart = 10;
 int topViewSize = dataVSize - ecart;
 
+PGraphics scoreView;
+int scoreViewSize = topViewSize;
+int score;
+int lastScore;
+int difficultyLevel;
+
+PGraphics scoreChartView;
+int hsHeight = 20;
+int scoreChartViewWidth;
+HScrollbar scoreChartHs;
+
 void setup() {
   size(windowSize, windowSize, P3D);
-  this.ball = new Ball(20., plateHeight);
+  this.ball = new Ball(ballRadius, plateHeight);
   pause = false;  
   canAddCylinder = false;
 
   dataBackground = createGraphics(windowSize, dataVSize, P2D);
-  topView = createGraphics( topViewSize, topViewSize, P2D);
+  topView = createGraphics(topViewSize, topViewSize, P2D);
+  scoreView = createGraphics(scoreViewSize, scoreViewSize, P2D);
+  scoreChartViewWidth = width - topViewSize - scoreViewSize - 3 * ecart;
+  scoreChartView = createGraphics(scoreChartViewWidth, topViewSize - hsHeight - ecart);
+  scoreChartHs = new HScrollbar(topViewSize + 2.5 * ecart + scoreViewSize,height - hsHeight - ecart / 2.0,scoreChartViewWidth,hsHeight);
+  lastScore = 0;
+  score = 0;
+  difficultyLevel = 4;
 }
 
 void draw() {
   background(200);
   fill(10, 0, 0);
-  text("mouse speed : " + (int)moveSpeed, 0, 10);
+  text("Mouse speed : " + (int)moveSpeed + "  (press q/w to adjust)"  , 0, 10);
+  text("Difficulty level (edges' hit influence on your score) :" + difficultyLevel + "   (press y/x to adjust)", 0, 25);
 
   pushMatrix();
 
@@ -53,11 +73,16 @@ void draw() {
 
   drawTopView();
   image(topView, ecart / 2.0, windowSize - topViewSize - ecart / 2.0);
+  
+  drawScoreView();
+  image(scoreView, (3.0 / 2) * ecart + topViewSize, windowSize - scoreViewSize - ecart / 2.0);
 
+  drawScoreChartView();
+  image(scoreChartView, 2.5 * ecart + topViewSize + scoreViewSize, windowSize - scoreViewSize - ecart / 2.0);
   popMatrix();
 
 
-  translate(height/2, (windowSize - dataVSize) / 2, 0);
+  translate(windowSize / 2, (windowSize - dataVSize) / 2, 0);
 
 
 
@@ -85,7 +110,7 @@ void draw() {
     drawCylinders();
 
     float currentX = mouseX - windowSize / 2;
-    float currentY = mouseY - windowSize / 2;
+    float currentY = mouseY - (windowSize - dataVSize) / 2;
     translate(currentX, 0, currentY);
 
     PVector v = new PVector(currentX, 0, currentY);
@@ -119,47 +144,59 @@ void drawBackground() {
   dataBackground.endDraw();
 }
 
+void drawScoreChartView() {
+  scoreChartView.beginDraw();
+  scoreChartView.background(50);
+  scoreChartHs.update();
+  scoreChartHs.display();
+  scoreChartView.endDraw();
+}
+
+void drawScoreView() {
+  scoreView.beginDraw();
+  scoreView.background(0);
+  scoreView.text("Total Score", 5, 15);
+  scoreView.text(score, 5, 30);
+  scoreView.text("Velocity", 5, 65);
+  scoreView.text((int)(ball.velocity.mag()), 5, 80);
+  scoreView.text("Last Score", 5, 115);
+  scoreView.text(lastScore, 5, 130);
+  scoreView.endDraw();
+}  
+ 
 void drawTopView() {
   topView.beginDraw();
   topView.background(0);
+  
+  float scale = topViewSize / plateLength;
 
-
-
-  /*
-  pushMatrix();
-   rotateX(-PI/2);
-   pushMatrix();
-   ball.display();
-   popMatrix();
-   fill(color(255,0,0));
-   box(plateLength, plateHeight, plateLength);
-   fill(color(0,255,0));
-   drawCylinders();
-   popMatrix();
-   */
-
-  /*
-  for(int i = 0; i < cylinders.size() ; i++){
-   PVector v = cylinders.get(i); 
-   pushMatrix();
-   translate(v.x, v.y, v.z);
-   cylinder();
-   popMatrix();
-   }
-   */
-
-  //topView.ellipse(50, 50, 25, 25);
-/*
-  for (int i = 0; i < cylinders.size (); i++)  {
-    PVector v = cylinders.get(i);
-    pushMatrix();
-    translate(v.x, v.y, v.z);
-    //cylinder();
+  for(PVector cylinder : cylinders) {
+    float x = cylinder.x;
+    float z = cylinder.z;
+   
+    x = x * scale + topViewSize / 2;
+    z = z * scale + topViewSize / 2;
     
-    float r = cylinderBaseSize * (topViewSize / windowSize);
-    topView.ellipse(v.x, v.y, r, r);
-    popMatrix();   
-  } */
+    float ellipseRadius = cylinderBaseSize * scale;
+    ellipseRadius *= 2;
+    topView.fill(color(255, 255, 255));
+    topView.ellipse(x, z, ellipseRadius, ellipseRadius);
+  }
+  
+  float x = ball.location.x;
+  float z = ball.location.z;
+  
+  x *= scale;
+  x += topViewSize / 2;
+  z *= scale;
+  z += topViewSize / 2;
+  
+  float ellipseRadius = ballRadius * scale * 2;
+  
+  topView.fill(color(255, 0, 0));
+  topView.ellipse(x, z, ellipseRadius, ellipseRadius);
+  
+
   topView.endDraw();
 }
 
@@ -167,13 +204,25 @@ void drawTopView() {
 
   void mousePressed() {
     if (pause && canAddCylinder) {
-      cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY - windowSize / 2));
+      cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY - (windowSize - dataVSize) / 2));
     }
   }
 
   void keyPressed() {
     if (key == CODED && keyCode == SHIFT)
       pause = true;
+    if(key == 'y')
+      if(difficultyLevel > 1)
+        difficultyLevel--;
+    if(key == 'x')
+      if(difficultyLevel < 10)
+        difficultyLevel++;
+    if(key == 'q')
+      if(moveSpeed > 1)
+        moveSpeed--;
+    if(key == 'w')
+      if(moveSpeed < 10)
+        moveSpeed++;     
   }
 
   void keyReleased() {
@@ -188,21 +237,23 @@ void drawTopView() {
   }
 
   void mouseDragged() {
-    rx = rx - moveSpeed * 0.001 * -(lrz - mouseY);
-    rz = rz - moveSpeed * 0.001 * (lrx - mouseX);
+    if(mouseY < height - dataVSize) {
+      rx = rx - moveSpeed * 0.001 * -(lrz - mouseY);
+      rz = rz - moveSpeed * 0.001 * (lrx - mouseX);
 
 
-    if (rx > extremValue)
-      rx = extremValue;
-    if (rx < -extremValue)
-      rx = -extremValue;
-    if (rz > extremValue)
-      rz = extremValue;
-    if (rz < -extremValue)
-      rz = -extremValue;
+      if (rx > extremValue)
+        rx = extremValue;
+      if (rx < -extremValue)
+        rx = -extremValue;
+      if (rz > extremValue)
+        rz = extremValue;
+      if (rz < -extremValue)
+        rz = -extremValue;
 
-    lrx = mouseX;
-    lrz = mouseY;
+      lrx = mouseX;
+      lrz = mouseY;
+    }
   }
 
 
@@ -210,7 +261,7 @@ void drawTopView() {
   {
     pushMatrix();
 
-    translate(0, -cylinderHeight, 0);
+    translate(0, - cylinderHeight, 0);
 
     float angle;
     float[] x = new float[sides+1];
@@ -269,17 +320,6 @@ void drawTopView() {
     }
   }
 
-  void mouseWheel(MouseEvent event) {
-    float e = -event.getCount();
-    moveSpeed = moveSpeed * e;
-
-    if (moveSpeed < 1)
-      moveSpeed = 1;
-    if (moveSpeed > 10)
-      moveSpeed = 10;
-  }
-
   void cylinder() {
     cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
   }
-
