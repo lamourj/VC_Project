@@ -41,8 +41,6 @@ public class QuadGraph {
         System.out.println("graph size : "+graph.length);
         
         this.lines = lines;
-        this.width = width;
-        this.height = height;
         this.dummyContext = dummyContext;
         
         findCycles();
@@ -129,6 +127,16 @@ public class QuadGraph {
             System.out.println("yes!");
             drawQuad(quad);
         }  
+    }
+
+    public void drawQuad(PVector[] corners){
+        Random random = new Random();
+        
+        dummyContext.fill(dummyContext.color(Math.min(255, random.nextInt(300)),
+                Math.min(255, random.nextInt(300)),
+                Math.min(255, random.nextInt(300)), 50));
+        
+        dummyContext.quad(corners[0].x,corners[0].y, corners[1].x, corners[1].y, corners[2].x, corners[2].y,corners[3].x, corners[3].y);
     }
 
     private boolean intersect(PVector line1, PVector line2) {

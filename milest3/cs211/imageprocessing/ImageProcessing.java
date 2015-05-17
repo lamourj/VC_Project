@@ -61,6 +61,7 @@ public class ImageProcessing extends PApplet {
         //print the best quad
         //QuadGraph qg = new QuadGraph(current.accToParam(lines), 800, 600, this);
         //qg.drawQuads();
+        //qg.drawQuad(qg.selectBestQuad(700*700, 300*300));
 
         //print the accumulator
         image(current.paramSpace(600, 600), 800, 0);
