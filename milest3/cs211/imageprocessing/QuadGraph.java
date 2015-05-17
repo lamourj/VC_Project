@@ -21,6 +21,8 @@ public class QuadGraph {
     
     //we remodeled the whole class because it was weird
     public QuadGraph(List<PVector> lines, int width, int height, PApplet dummyContext){
+        this.width = width;
+        this.height = height;
         //first we build a sound representation of the intersection graph
         int n = lines.size();
         graph = new int[n * (n + 1)/2][2];// The maximum possible number of edges is sum(0..n) = n * (n + 1)/2
