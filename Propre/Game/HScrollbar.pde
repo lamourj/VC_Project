@@ -9,6 +9,7 @@ class HScrollbar {
   
   boolean mouseOver;  //Is the mouse over the slider?
   boolean locked;     //Is the mouse clicking and dragging the slider now?
+  boolean reachable; // Is the scrollbar able to be moved (not if currently moving the plate)
 
   /**
    * @brief Creates a new horizontal scrollbar
@@ -41,7 +42,7 @@ class HScrollbar {
     else {
       mouseOver = false;
     }
-    if (mousePressed && mouseOver) {
+    if (mousePressed && mouseOver && reachable) {
       locked = true;
     }
     if (!mousePressed) {

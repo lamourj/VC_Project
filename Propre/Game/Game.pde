@@ -149,6 +149,22 @@ void drawScoreChartView() {
   scoreChartView.background(50);
   scoreChartHs.update();
   scoreChartHs.display();
+  
+  int rectWidth = (int)(scoreChartHs.getPos() * 10);
+  if(rectWidth < 1)
+    rectWidth = 1;
+  rectWidth *= 3;
+  
+  int rectHeight = 10;
+  int rectEcart = 2;
+  // x, y, w, h
+  int xRect = 0;
+  int yRect = scoreChartView.height - rectHeight;
+  
+  for(int i = 0; i < score / 10; i++) {
+    scoreChartView.rect(xRect, yRect, rectWidth, rectHeight, 1);  
+    yRect -= ecart;
+  }
   scoreChartView.endDraw();
 }
 
@@ -237,7 +253,8 @@ void drawTopView() {
   }
 
   void mouseDragged() {
-    if(mouseY < height - dataVSize) {
+    if(mouseY < height - dataVSize && !scoreChartHs.locked) {
+      scoreChartHs.reachable = false;
       rx = rx - moveSpeed * 0.001 * -(lrz - mouseY);
       rz = rz - moveSpeed * 0.001 * (lrx - mouseX);
 
@@ -254,6 +271,10 @@ void drawTopView() {
       lrx = mouseX;
       lrz = mouseY;
     }
+  }
+  
+  void mouseReleased() {
+    scoreChartHs.reachable = true;
   }
 
 
