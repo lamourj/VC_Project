@@ -90,6 +90,7 @@ class Ball {
         // sub is the normal
         lastScore = (int)velocity.mag();
         score += lastScore;
+        // updateScores();
         sub.normalize();
         
         PVector x = sub.get();
@@ -111,9 +112,16 @@ class Ball {
     } 
   }
   
+  void updateScores() {
+    scores.add(0, score);
+    if(scores.size() > 50)
+      scores.remove(49);
+  }
+  
   void subScore() {
     lastScore = (int)(difficultyLevel*0.1*velocity.mag());
     score -= lastScore;
+    // updateScores();
   }
 
   void display() {

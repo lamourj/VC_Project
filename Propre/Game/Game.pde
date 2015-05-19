@@ -35,8 +35,11 @@ int topViewSize = dataVSize - ecart;
 PGraphics scoreView;
 int scoreViewSize = topViewSize;
 int score;
+ArrayList<Integer> scores;
 int lastScore;
 int difficultyLevel;
+long lastTime;
+double refreshDelay = 0.75; // refresh delay for score display, in seconds.
 
 PGraphics scoreChartView;
 int hsHeight = 20;
@@ -57,6 +60,7 @@ void setup() {
   scoreChartHs = new HScrollbar(topViewSize + 2.5 * ecart + scoreViewSize,height - hsHeight - ecart / 2.0,scoreChartViewWidth,hsHeight);
   lastScore = 0;
   score = 0;
+  scores = new ArrayList<Integer>();
   difficultyLevel = 4;
 }
 
@@ -160,12 +164,27 @@ void drawScoreChartView() {
   // x, y, w, h
   int xRect = 0;
   int yRect = scoreChartView.height - rectHeight;
+  int xDiff = 2;
   
-  for(int i = 0; i < score / 10; i++) {
-    scoreChartView.rect(xRect, yRect, rectWidth, rectHeight, 1);  
-    yRect -= ecart;
+  if(millis() - lastTime > refreshDelay * 1000) {
+    lastTime = millis();
+    ball.updateScores();
+  }
+  if(pause){
+    lastTime = millis();
+  }
+  
+  if(!pause){
+  for(int i = 0; i < scores.size(); i++) {
+    for(int j = 0; j < scores.get(i) / 10; j++) {
+      scoreChartView.rect(xRect, yRect, rectWidth, rectHeight, 1);
+      yRect -= ecart;
+    }
+    yRect = scoreChartView.height - rectHeight;
+    xRect += rectWidth + xDiff;
   }
   scoreChartView.endDraw();
+  }
 }
 
 void drawScoreView() {
