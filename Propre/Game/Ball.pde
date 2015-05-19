@@ -19,7 +19,7 @@ class Ball {
 
   final float radius;
   final static float gravityCst = 0.9;
-  final static float mu = 0.17;
+  final static float mu = 0.08; // before .17
   final static float rebounce = 0.8;
 
   final static boolean drawVector = false;
