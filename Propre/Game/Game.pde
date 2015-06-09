@@ -46,6 +46,8 @@ double refreshDelay = 0.75; // refresh delay for score display, in seconds.
 PGraphics scoreChartView;
 int hsHeight = 20;
 int scoreChartViewWidth;
+boolean adaptativeScale = true; // set the auto-adapt scale for score display to be on or off.
+int scoreDivisor = 10; // value used in case the auto-adapt scale is not enabled.
 HScrollbar scoreChartHs;
 
 void setup() {
@@ -188,9 +190,16 @@ void drawScoreChartView()  {
     lastTime = millis();
   }
 
+  
+  if(adaptativeScale) {
+    scoreDivisor = 10;
+    if(!scores.isEmpty() && scores.get(0) > 10)
+      scoreDivisor = (int)scores.get(0) / 10;
+  }
+
   if (!pause) {
     for (int i = 0; i < scores.size (); i++) {
-      for (int j = 0; j < scores.get (i) / 10; j++)  {
+      for (int j = 0; j < scores.get(i) / scoreDivisor; j++)  {
         scoreChartView.rect(xRect, yRect, rectWidth, rectHeight, 1);
         yRect -= ecart;
       }
@@ -199,6 +208,11 @@ void drawScoreChartView()  {
     }
     scoreChartView.endDraw();
   }
+}
+
+// Calculates the base-10 logarithm of a number
+int log10 (int x) {
+  return (int) (log(x) / log(10));
 }
 
 void drawScoreView() {
