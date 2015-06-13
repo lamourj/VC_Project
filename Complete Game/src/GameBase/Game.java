@@ -2,6 +2,8 @@ package GameBase;
 
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PShape;
@@ -100,7 +102,9 @@ public class Game extends PApplet {
 		scores = new ArrayList<Integer>();
 		difficultyLevel = 4;
 		
-		inStream = new ImageProcessing();
+		PFrame f = new PFrame(width, height);
+		f.setTitle("Camera stream");
+		fill(0);
 	}
 
 	public void draw() {
@@ -290,13 +294,11 @@ public class Game extends PApplet {
 	}
 
 	public void mousePressed() {
-		if(IS_MOUSE_CONTROLLED) {
 			if (pause && canAddCylinder) {
 				cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY
 						- (windowSize - dataVSize) / 2));
 				rotationsShifts.add(((int) (millis() % (int) PI)));
 			}
-		}
 	}
 
 	public void keyPressed() {
@@ -412,4 +414,15 @@ public class Game extends PApplet {
 	void cylinder() {
 		cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
 	}
+	
+	public class PFrame extends JFrame {
+		  @SuppressWarnings("deprecation")
+		public PFrame(int width, int height) {
+		    setBounds(100, 100, width, height);
+		    inStream = new ImageProcessing();
+		    add(inStream);
+		    inStream.init();
+		    show();
+		  }
+		}
 }
