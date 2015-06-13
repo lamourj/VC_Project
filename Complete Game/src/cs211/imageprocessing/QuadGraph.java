@@ -51,7 +51,7 @@ public class QuadGraph {
 
     /**
      * This methods selects the best quad available following the three criterion of the pdf
-     * @return the 4 corners of a good quad, if nothing good was found the last good quad
+     * @return the 4 corners of a good quad (coordinates in pixel), if nothing good was found the last good quad
      */
     public PVector[] selectBestQuad(){
 

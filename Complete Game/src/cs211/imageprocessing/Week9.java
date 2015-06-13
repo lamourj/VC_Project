@@ -29,7 +29,6 @@ public class Week9 {
     private final float[] cosMul;
     private final float[] sinMul;
 
-    //TODO: understand how to call methods like createImage outside a PApplet class
     private final PApplet dummyContext;
 
     public Week9(PApplet dummyContext, PImage edgeImg){

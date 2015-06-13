@@ -1,11 +1,13 @@
 package cs211.imageprocessing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-import processing.video.*;
+import processing.video.Movie;
+import GameBase.TwoDThreeD;
 
 @SuppressWarnings("serial")
 public class ImageProcessing extends PApplet { 
@@ -22,15 +24,25 @@ public class ImageProcessing extends PApplet {
     private int hiBr = 169;
     private int minSat = 91;
     private int nbVote = 100;
+    
+    private final int videoWidth = 640;
+    private final int videoHeight = 480;
 
     private final Week8 week8;
+    private TwoDThreeD tr;
+    
+    /**
+     * Note: coordinates are in Radians.
+     */
+    public PVector rotations3d;
 
     public ImageProcessing(){
         week8 = new Week8(this);
+        tr = new TwoDThreeD(videoWidth, videoHeight);
     }
 
     public void setup() {
-        size(640, 480);
+        size(videoWidth, videoHeight);
         mov = new Movie(this, "../data/testvideo.mp4");
         mov.loop();
     }
@@ -65,26 +77,25 @@ public class ImageProcessing extends PApplet {
           PVector[] bestQuads = qg.selectBestQuad();
           qg.drawQuad(bestQuads);
           
-          if(bestQuads != null){
-        	  System.out.println("=========");
-        	  for(PVector v : bestQuads)
-        		  System.out.println("x: " + v.x + " y: " + v.y + " z: " + v.z);  
+          if(bestQuads != null && bestQuads.length == 4){
+        	  ArrayList<PVector> bestQuadsList = new ArrayList<>();
+        	  
+        	  for(int i = 0 ; i < bestQuads.length ; i++)
+        		  bestQuadsList.add(bestQuads[i]);
+        	  
+        	  rotations3d = tr.get3DRotations(bestQuadsList);
           }
           
-
+          if(!paused){
+              mov.play();
+          }
+          else{
+              mov.pause();  
+          }
     }
 
     public void keyPressed(){
-        if(key == ' '){
-            if(isPaused()){
-                mov.play();
-            }
-            else{
-                mov.pause();  
-            }
-            setPaused(!isPaused());
-        }
-        if(isPaused()){
+        if(paused){
             if (key == CODED) {
                 if(keyCode == UP){
                     highHue = Math.min(255,  highHue + 1);

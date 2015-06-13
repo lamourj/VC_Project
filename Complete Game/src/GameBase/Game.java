@@ -20,7 +20,7 @@ import cs211.imageprocessing.ImageProcessing;
 @SuppressWarnings("serial")
 public class Game extends PApplet {
 	final static boolean IS_MOUSE_CONTROLLED = false;
-	
+
 	float rx = 0;
 	float rz = 0;
 
@@ -62,6 +62,7 @@ public class Game extends PApplet {
 	int lastScore;
 	int difficultyLevel;
 	long lastTime;
+	long startingTime;
 	double refreshDelay = 0.75; // refresh delay for score display, in seconds.
 
 	PGraphics scoreChartView;
@@ -72,11 +73,12 @@ public class Game extends PApplet {
 	int scoreDivisor = 10; // value used in case the auto-adapt scale is not
 							// enabled.
 	HScrollbar scoreChartHs;
-	
+
 	// Input stream display
 	ImageProcessing inStream;
 
 	public void setup() {
+		startingTime = millis();
 		size(windowSize, windowSize, P3D);
 		this.ball = new Ball(this, ballRadius, plateHeight);
 		pause = false;
@@ -101,7 +103,7 @@ public class Game extends PApplet {
 		score = 0;
 		scores = new ArrayList<Integer>();
 		difficultyLevel = 4;
-		
+
 		PFrame f = new PFrame(width, height);
 		f.setTitle("Camera stream");
 		fill(0);
@@ -131,7 +133,13 @@ public class Game extends PApplet {
 		image(scoreChartView, 2.5f * ecart + topViewSize + scoreViewSize,
 				windowSize - scoreViewSize - ecart / 2.0f);
 		popMatrix();
-				
+		
+		if(!IS_MOUSE_CONTROLLED && inStream != null && inStream.rotations3d != null) {		
+			rx = (float) (inStream.rotations3d.x);
+			rz = (float) (inStream.rotations3d.y);
+			
+			checkBounds();
+		}
 
 		if (!pause) {
 			camera(width / 2.0f, height / 4.5f,
@@ -188,7 +196,6 @@ public class Game extends PApplet {
 		}
 
 	}
-	
 
 	void drawBackground() {
 		dataBackground.beginDraw();
@@ -294,11 +301,11 @@ public class Game extends PApplet {
 	}
 
 	public void mousePressed() {
-			if (pause && canAddCylinder) {
-				cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY
-						- (windowSize - dataVSize) / 2));
-				rotationsShifts.add(((int) (millis() % (int) PI)));
-			}
+		if (pause && canAddCylinder) {
+			cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY
+					- (windowSize - dataVSize) / 2));
+			rotationsShifts.add(((int) (millis() % (int) PI)));
+		}
 	}
 
 	public void keyPressed() {
@@ -316,9 +323,9 @@ public class Game extends PApplet {
 		if (key == 'w')
 			if (moveSpeed < 10)
 				moveSpeed++;
-		
+
 		// Allows to play/pause the input video
-		if(key == ' ')
+		if (key == ' ')
 			inStream.setPaused(!inStream.isPaused());
 	}
 
@@ -334,23 +341,29 @@ public class Game extends PApplet {
 	}
 
 	public void mouseDragged() {
-		if (mouseY < height - dataVSize && !scoreChartHs.locked) {
-			scoreChartHs.reachable = false;
-			rx = (float) (rx - moveSpeed * 0.001 * -(lrz - mouseY));
-			rz = (float) (rz - moveSpeed * 0.001 * (lrx - mouseX));
+		if (IS_MOUSE_CONTROLLED) {
+			if (mouseY < height - dataVSize && !scoreChartHs.locked) {
+				scoreChartHs.reachable = false;
+				rx = (float) (rx - moveSpeed * 0.001 * -(lrz - mouseY));
+				rz = (float) (rz - moveSpeed * 0.001 * (lrx - mouseX));
 
-			if (rx > extremValue)
-				rx = extremValue;
-			if (rx < -extremValue)
-				rx = -extremValue;
-			if (rz > extremValue)
-				rz = extremValue;
-			if (rz < -extremValue)
-				rz = -extremValue;
+				checkBounds();
 
-			lrx = mouseX;
-			lrz = mouseY;
-		}
+				lrx = mouseX;
+				lrz = mouseY;
+			}
+		} 
+	}
+	
+	private void checkBounds() {
+		if (rx > extremValue)
+			rx = extremValue;
+		if (rx < -extremValue)
+			rx = -extremValue;
+		if (rz > extremValue)
+			rz = extremValue;
+		if (rz < -extremValue)
+			rz = -extremValue;
 	}
 
 	public void mouseReleased() {
@@ -414,15 +427,15 @@ public class Game extends PApplet {
 	void cylinder() {
 		cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
 	}
-	
+
 	public class PFrame extends JFrame {
-		  @SuppressWarnings("deprecation")
+		@SuppressWarnings("deprecation")
 		public PFrame(int width, int height) {
-		    setBounds(100, 100, width, height);
-		    inStream = new ImageProcessing();
-		    add(inStream);
-		    inStream.init();
-		    show();
-		  }
+			setBounds(100, 100, width, height);
+			inStream = new ImageProcessing();
+			add(inStream);
+			inStream.init();
+			show();
 		}
+	}
 }

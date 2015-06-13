@@ -12,7 +12,6 @@ import static cs211.imageprocessing.ImageProcessing.*;
 
 public final class Week8{
 
-    //TODO: understand how to call methods like createImage outside a PApplet class
     private final PApplet dummyContext;
     
     public static final float[][] gaussian = {{9, 12, 9}, {12, 15, 12}, {9, 12, 9}};
