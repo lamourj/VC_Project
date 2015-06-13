@@ -9,6 +9,11 @@ import processing.core.PVector;
 import processing.video.Movie;
 import GameBase.TwoDThreeD;
 
+/**
+ * @author Gilbert Maystre
+ *
+ * Implements the detection with a input video.
+ */
 @SuppressWarnings("serial")
 public class ImageProcessing extends PApplet { 
 
@@ -45,6 +50,7 @@ public class ImageProcessing extends PApplet {
         size(videoWidth, videoHeight);
         mov = new Movie(this, "../data/testvideo.mp4");
         mov.loop();
+        
     }
 
     public void draw() {
@@ -67,10 +73,10 @@ public class ImageProcessing extends PApplet {
 
 
           Week9 current = new Week9(this, sobeliz);
-          List<Integer> lines = current.optimizeWithNeighboorsLines(nbVote, 10, 5);
+          List<Integer> lines = current.optimizeWithNeighboorsLines(nbVote, 10, 6);
           //current.drawLines(lines);
           //current.getAndDrawIntersections(current.accToParam(lines)); 
-          QuadGraph qg = new QuadGraph(current.accToParam(lines), 1080, 720, this);
+          QuadGraph qg = new QuadGraph(current.accToParam(lines), videoWidth, videoHeight, this);
 
           //on dessine le meilleur quad en rouge
           fill(255, 0, 0, 80);

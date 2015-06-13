@@ -7,6 +7,16 @@ import java.util.List;
 import processing.core.PVector;
 import papaya.*;
 
+/**
+ * Utility class for the passage from coordinates of
+ * plate's corners in pixels to real inclination of
+ * the plate.
+ * Skeleton given by the course-staff.
+ * 
+ * @author CS-211 EPFL
+ * @author Julien Lamour
+ *
+ */
 public class TwoDThreeD {
 
 	// default focal length, well suited for most webcams
@@ -24,7 +34,9 @@ public class TwoDThreeD {
 			// Store here the 3D coordinates of the corners of
 			// the real Lego board, in homogenous coordinates
 			// and clockwise.
-			{ -127, -127, 0, 1 }, { 127, -127, 0, 1 }, { 127, 127, 0, 1 },
+			{ -127, -127, 0, 1 }, 
+			{ 127, -127, 0, 1 }, 
+			{ 127, 127, 0, 1 },
 			{ -127, 127, 0, 1 } };
 
 	public TwoDThreeD(int width, int height) {

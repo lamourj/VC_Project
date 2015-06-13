@@ -2,6 +2,14 @@ package GameBase;
 
 import processing.core.PVector;
 
+/**
+ * @author Julien Lamour
+ * @author Gilbert Maystre
+ * @author Martin Fontanet
+ * 
+ * 
+ * Reprentation of a ball for our project.
+ */
 public class Ball {
 
   /**

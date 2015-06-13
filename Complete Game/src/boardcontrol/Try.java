@@ -1,11 +1,11 @@
-/*
- *	Author:      Gilbert Maystre
- *	Date:        May 15, 2015
- */
-
 package boardcontrol;
 
 import processing.core.PApplet; import processing.core.PImage; import processing.video.Capture;
+/**
+ * Lauch the detection with the first available camera.
+ * 
+ * @author Gilbert Maystre
+ */
 @SuppressWarnings("serial")
 public class Try extends PApplet {
     Capture cam;

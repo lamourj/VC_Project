@@ -15,9 +15,9 @@ import cs211.imageprocessing.ImageProcessing;
  * Main class of the whole game.
  * Project for CS-211 EPFL course: Introduction to Visual Computing, Spring 2015.
  * 
+ * @author Martin Fontanet
  * @author Julien Lamour
  * @author Gilbert Maystre
- * @author Martin Fontanet
  * 
  * @version 1.0
  *
@@ -25,41 +25,56 @@ import cs211.imageprocessing.ImageProcessing;
 @SuppressWarnings("serial")
 public class Game extends PApplet {
 
+	/**
+	 * Define if the board is mouse-controlled or controlled by the input
+	 * (webcam).
+	 */
 	final static boolean IS_MOUSE_CONTROLLED = false;
 
+	// Inclination of the board
 	float rx = 0;
 	float rz = 0;
 
+	// Last inclination to compute difference
 	float lrx = 0;
 	float lrz = 0;
 
 	float moveSpeed = 5;
 	float extremValue = (float) (60 * 2 * Math.PI / 360);
 
+	// Plate and window settings
 	float plateHeight = 10;
 	float plateLength = 300;
 	int windowSize = 700;
 
+	// Cylinder settings and utilities
 	float cylinderBaseSize = 20;
 	float cylinderHeight = 30;
 	int cylinderResolution = 30;
 	public ArrayList<PVector> cylinders;
 	ArrayList<Integer> rotationsShifts;
 
+	// Ball settings and utilities
 	Ball ball;
 	float ballRadius = 20;
-	boolean pause;
-	boolean canAddCylinder;
+	/**
+	 * Private boolean defining if the game is currently paused (user is adding
+	 * obstacle) or not.
+	 */
+	private boolean pause;
+	private boolean canAddCylinder;
 	PShape object;
 
-	// Data visualization variables
+	// Data visualization settings and utilities
 	PGraphics dataBackground;
 	int dataVSize = 150;
 
+	// Top view settings and utilities
 	PGraphics topView;
 	int ecart = 10;
 	int topViewSize = dataVSize - ecart;
 
+	// Score-display settings and utilities
 	PGraphics scoreView;
 	int scoreViewSize = topViewSize;
 	int score;
@@ -73,8 +88,11 @@ public class Game extends PApplet {
 	PGraphics scoreChartView;
 	int hsHeight = 20;
 	int scoreChartViewWidth;
-	boolean adaptativeScale = true; // set the auto-adapt scale for score
-									// display to be on or off.
+
+	/**
+	 * Set the auto-adapt scale for score display to be on or off.
+	 */
+	final static boolean adaptativeScale = true;
 	int scoreDivisor = 10; // value used in case the auto-adapt scale is not
 							// enabled.
 	HScrollbar scoreChartHs;
@@ -141,8 +159,11 @@ public class Game extends PApplet {
 
 		if (!IS_MOUSE_CONTROLLED && inStream != null
 				&& inStream.rotations3d != null) {
-			rx = (float) (inStream.rotations3d.x);
-			rz = (float) (inStream.rotations3d.y);
+
+			// Factor 1/3 is used here to reduce the tilt effect
+			// due to the noise of the input stream.
+			rx = (1 / 3f) * (inStream.rotations3d.x + 2 * rx);
+			rz = (1 / 3f) * (inStream.rotations3d.y + 2 * rz);
 
 			checkBounds();
 		}
@@ -203,12 +224,18 @@ public class Game extends PApplet {
 
 	}
 
+	/**
+	 * Draws the background
+	 */
 	void drawBackground() {
 		dataBackground.beginDraw();
 		dataBackground.background(100);
 		dataBackground.endDraw();
 	}
 
+	/**
+	 * Draws the Score chart
+	 */
 	void drawScoreChartView() {
 		scoreChartView.beginDraw();
 		scoreChartView.background(50);
@@ -259,6 +286,9 @@ public class Game extends PApplet {
 		return (int) (log(x) / log(10));
 	}
 
+	/**
+	 * Display some informations related to the score.
+	 */
 	void drawScoreView() {
 		scoreView.beginDraw();
 		scoreView.background(0);
@@ -271,6 +301,9 @@ public class Game extends PApplet {
 		scoreView.endDraw();
 	}
 
+	/**
+	 * Draws the top-view of the plate with ball and obstacles.
+	 */
 	void drawTopView() {
 		topView.beginDraw();
 		topView.background(0);
@@ -361,21 +394,45 @@ public class Game extends PApplet {
 		}
 	}
 
-	private void checkBounds() {
-		if (rx > extremValue)
+	/**
+	 * Check if the board is currently going outside the initially-defined
+	 * limits for board inclination.
+	 * 
+	 * @return a <code>boolean</code> set to <code>true</code> if the bounds
+	 *         have been reached, <code>false</code> otherwise.
+	 */
+	private boolean checkBounds() {
+		boolean tmp = false;
+		if (rx > extremValue) {
 			rx = extremValue;
-		if (rx < -extremValue)
+			tmp = true;
+		}
+		if (rx < -extremValue) {
 			rx = -extremValue;
-		if (rz > extremValue)
+			tmp = true;
+		}
+		if (rz > extremValue) {
 			rz = extremValue;
-		if (rz < -extremValue)
+			tmp = true;
+		}
+		if (rz < -extremValue) {
 			rz = -extremValue;
+			tmp = true;
+		}
+		return tmp;
 	}
 
 	public void mouseReleased() {
 		scoreChartHs.reachable = true;
 	}
 
+	/**
+	 * Draws a cylinder with given settings
+	 * 
+	 * @param <code>baseR</code> the basis' radius
+	 * @param <code>h</code> the height
+	 * @param <code>sides</code> the number of sides
+	 */
 	void cylinder(float baseR, float h, int sides) {
 		pushMatrix();
 
@@ -430,23 +487,38 @@ public class Game extends PApplet {
 		}
 	}
 
+	/**
+	 * Draws a cylinder with the initially-set parameters
+	 */
 	void cylinder() {
 		cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
 	}
 
+	/**
+	 * @return the boolean pause, describing if the game is currently paused
+	 *         (e.g. user adding cylinder) or not.
+	 */
+	public boolean isPaused() {
+		return pause;
+		
+	}
+	
+	/**
+	 * The class PFrame (extending JFrame) is helpful to open two windows,
+	 * one dedicated for the game, while to second one shows the input
+	 * camera (or video) stream.
+	 * 
+	 * @author Julien Lamour
+	 * 
+	 * @see JFrame
+	 *
+	 */
 	public class PFrame extends JFrame {
-		/**
-		 * The class PFrame (extending JFrame) is helpful to open two windows,
-		 * one dedicated for the game, while to second one shows the input
-		 * camera (or video) stream.
-		 * 
-		 * @author Julien Lamour
-		 * 
-		 * @see JFrame
-		 *
-		 */
+		
 
-		@SuppressWarnings("deprecation")
+		/**
+		 * Constructor for the {@link PFrame} class
+		 */
 		public PFrame() {
 			inStream = new ImageProcessing();
 			setBounds(100, 100, inStream.videoWidth, inStream.videoHeight);

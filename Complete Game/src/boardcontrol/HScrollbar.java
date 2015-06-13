@@ -1,12 +1,15 @@
-/*
- *	Author:      Gilbert Maystre
- *	Date:        Apr 14, 2015
- */
-
 package boardcontrol;
 
 import processing.core.PApplet;
 
+/**
+ * Class which skeleton was given by the course's staff.
+ * Implements a ScrollBar for the project.
+ * 
+ * @author Gilbert Maystre
+ * @author Julien Lamour
+ * @author CS-211 EPFL
+ */
 public class HScrollbar {
     PApplet parent;
     
