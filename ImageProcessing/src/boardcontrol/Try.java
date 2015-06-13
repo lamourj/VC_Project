@@ -5,11 +5,14 @@
 
 package boardcontrol;
 
-import processing.core.PApplet; import processing.core.PImage; import processing.video.Capture;
+import processing.core.PApplet; import processing.core.PImage; import processing.video.*;
+
 @SuppressWarnings("serial")
 public class Try extends PApplet {
     Capture cam;
     PImage img;
+    
+//    Movie cam;
     public void setup() {
         size(640, 360);
         String[] cameras = Capture.list(); if (cameras.length == 0) {
@@ -21,6 +24,9 @@ public class Try extends PApplet {
                 }
                 cam = new Capture(this, cameras[4]);
                 cam.start();
+                
+//                cam = new Movie(this, "/testvideo.mp4");
+//                cam.loop();
             }
     }
     public void draw() {
