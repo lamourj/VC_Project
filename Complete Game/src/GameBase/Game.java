@@ -6,8 +6,10 @@ import javax.swing.JFrame;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PShape;
 import processing.core.PVector;
+import sun.misc.Lock;
 import detectionUtilities.ImageProcessing;
 
 /**
@@ -52,12 +54,15 @@ public class Game extends PApplet {
 	float plateHeight = 10;
 	float plateLength = 300;
 	int windowSize = 700;
+	PImage backgrndImage;
+	PImage plateTexture;
 
-	// Cylinder settings and utilities
+	// Cylinder settings and utilities. (useful for
+	// our first implementation without Bottle object) 
 	float cylinderBaseSize = 20;
 	float cylinderHeight = 30;
 	int cylinderResolution = 30;
-	public ArrayList<PVector> cylinders;
+	public ArrayList<PVector> obstacles;
 	ArrayList<Integer> rotationsShifts;
 
 	// Ball settings and utilities
@@ -69,7 +74,8 @@ public class Game extends PApplet {
 	 */
 	private boolean pause;
 	private boolean canAddCylinder;
-	PShape object;
+	PShape texturedBottle;
+	PShape redBottle;
 
 	// Data visualization settings and utilities
 	PGraphics dataBackground;
@@ -108,6 +114,8 @@ public class Game extends PApplet {
 
 	@SuppressWarnings("unused")
 	public void setup() {
+		backgrndImage = loadImage("../data/background.png");
+		plateTexture = loadImage("../data/plateFont.jpg");
 
 		if (IS_MOUSE_CONTROLLED && IS_WEBCAM_CONTROLLED)
 			throw new IllegalStateException(
@@ -116,13 +124,14 @@ public class Game extends PApplet {
 		size(windowSize, windowSize, P3D);
 		this.ball = new Ball(this, ballRadius, plateHeight);
 		pause = false;
-		cylinders = new ArrayList<PVector>();
+		obstacles = new ArrayList<PVector>();
 		rotationsShifts = new ArrayList<Integer>();
 		canAddCylinder = false;
-		object = loadShape("../data/object.obj");
-		object.scale(0.85f);
-		object.rotateX(PI);
-		object.rotateY(PI);
+		texturedBottle = loadShape("../data/object.obj");
+		setBottle(texturedBottle);
+		redBottle = loadShape("../data/fausse.obj");
+		setBottle(redBottle);
+		
 
 		dataBackground = createGraphics(windowSize, dataVSize, P2D);
 		topView = createGraphics(topViewSize, topViewSize, P2D);
@@ -151,9 +160,18 @@ public class Game extends PApplet {
 		}
 	}
 
+	private void setBottle(PShape shape) {
+		shape.scale(0.85f);
+		shape.rotateX(PI);
+		shape.rotateY(PI);
+	}
+
 	public void draw() {
-		background(200);
-		fill(10, 0, 0);
+		hint(DISABLE_DEPTH_TEST);
+		image(backgrndImage,0,0);
+		hint(ENABLE_DEPTH_TEST);
+		
+		fill(255, 255, 255);
 
 		text("Mouse speed : " + (int) moveSpeed + "  (press q/w to adjust)", 0,
 				10);
@@ -196,10 +214,10 @@ public class Game extends PApplet {
 			translate(windowSize / 2, (windowSize - dataVSize) / 2, 0);
 			rotateX(rx);
 			rotateZ(rz);
-			fill(color(255, 0, 0));
-			box(plateLength, plateHeight, plateLength);
-			fill(color(0, 255, 0));
-			drawCylinders();
+
+			createPlate();
+			
+			drawObstacles();
 
 			ball.update(rx, rz, plateLength);
 			ball.display();
@@ -215,10 +233,8 @@ public class Game extends PApplet {
 			pushMatrix();
 			ball.display();
 			popMatrix();
-			fill(color(255, 0, 0));
-			box(plateLength, plateHeight, plateLength);
-			fill(color(0, 255, 0));
-			drawCylinders();
+			createPlate();
+			drawObstacles();
 
 			float currentX = mouseX - windowSize / 2;
 			float currentY = mouseY - (windowSize - dataVSize) / 2;
@@ -233,16 +249,66 @@ public class Game extends PApplet {
 					&& currentX + cylinderBaseSize < plateLength / 2
 					&& currentY - cylinderBaseSize > -plateLength / 2
 					&& currentY + cylinderBaseSize < plateLength / 2 && d > 0;
+//
+//			if (canAddCylinder)
+//				fill(color(0, 255, 0));
+//			else
+//				fill(color(255, 0, 0));
 
-			if (canAddCylinder)
-				fill(color(0, 255, 0));
-			else
-				fill(color(255, 0, 0));
-
-			cylinder();
+			obstacle();
 			popMatrix();
 		}
 
+	}
+	
+	/**
+	 * Generates the plate with the texture in
+	 * <code>plateTexture</code>.
+	 */
+	void createPlate() {
+		beginShape();
+		texture(plateTexture);
+		float halfPlateLength = plateLength / 2;
+		vertex(-halfPlateLength, -plateHeight/2, -halfPlateLength,0,0);
+		vertex(halfPlateLength, -plateHeight/2, -halfPlateLength,plateTexture.width,0);
+		vertex(halfPlateLength, -plateHeight/2, halfPlateLength,plateTexture.width,plateTexture.height);
+		vertex(-halfPlateLength, -plateHeight/2, halfPlateLength,0,plateTexture.height);
+		endShape();
+		beginShape();
+		texture(plateTexture);
+        vertex(-halfPlateLength, plateHeight/2, -halfPlateLength,0,0);
+        vertex(halfPlateLength, plateHeight/2, -halfPlateLength,plateTexture.width,0);
+        vertex(halfPlateLength, plateHeight/2, halfPlateLength,plateTexture.width,plateTexture.height);
+        vertex(-halfPlateLength,plateHeight/2, halfPlateLength,0,plateTexture.height);
+        endShape();
+        beginShape();
+        texture(plateTexture);
+        vertex(-halfPlateLength, plateHeight/2, halfPlateLength,0,0);
+        vertex(-halfPlateLength, plateHeight/2, -halfPlateLength,plateTexture.width,0);
+        vertex(-halfPlateLength, -plateHeight/2, -halfPlateLength,plateTexture.width,plateTexture.height);
+        vertex(-halfPlateLength,-plateHeight/2, halfPlateLength,0,plateTexture.height);
+        endShape();
+        beginShape();
+        texture(plateTexture);
+        vertex(halfPlateLength, plateHeight/2, halfPlateLength,0,0);
+        vertex(halfPlateLength, plateHeight/2, -halfPlateLength,plateTexture.width,0);
+        vertex(halfPlateLength, -plateHeight/2, -halfPlateLength,plateTexture.width,plateTexture.height);
+        vertex(halfPlateLength,-plateHeight/2, halfPlateLength,0,plateTexture.height);
+        endShape();
+        beginShape();
+        texture(plateTexture);
+        vertex(halfPlateLength, plateHeight/2, halfPlateLength,0,0);
+        vertex(-halfPlateLength, plateHeight/2, halfPlateLength,plateTexture.width,0);
+        vertex(-halfPlateLength, -plateHeight/2, halfPlateLength,plateTexture.width,plateTexture.height);
+        vertex(halfPlateLength,-plateHeight/2, halfPlateLength,0,plateTexture.height);
+        endShape();
+        beginShape();
+        texture(plateTexture);
+        vertex(halfPlateLength, plateHeight/2, -halfPlateLength,0,0);
+        vertex(-halfPlateLength, plateHeight/2, -halfPlateLength,plateTexture.width,0);
+        vertex(-halfPlateLength, -plateHeight/2, -halfPlateLength,plateTexture.width,plateTexture.height);
+        vertex(halfPlateLength,-plateHeight/2, -halfPlateLength,0,plateTexture.height);
+        endShape();
 	}
 
 	/**
@@ -277,7 +343,7 @@ public class Game extends PApplet {
 
 		if (millis() - lastTime > refreshDelay * 1000) {
 			lastTime = millis();
-			ball.updateScores();
+			ball.updateScore();
 		}
 		if (pause) {
 			lastTime = millis();
@@ -313,6 +379,7 @@ public class Game extends PApplet {
 	void drawScoreView() {
 		scoreView.beginDraw();
 		scoreView.background(0);
+		scoreView.fill(255, 255, 255);
 		scoreView.text("Total Score", 5, 15);
 		scoreView.text(score, 5, 30);
 		scoreView.text("Velocity", 5, 65);
@@ -331,7 +398,7 @@ public class Game extends PApplet {
 
 		float scale = topViewSize / plateLength;
 
-		for (PVector cylinder : cylinders) {
+		for (PVector cylinder : obstacles) {
 			float x = cylinder.x;
 			float z = cylinder.z;
 
@@ -362,7 +429,7 @@ public class Game extends PApplet {
 
 	public void mousePressed() {
 		if (pause && canAddCylinder) {
-			cylinders.add(new PVector(mouseX - windowSize / 2, 0, mouseY
+			obstacles.add(new PVector(mouseX - windowSize / 2, 0, mouseY
 					- (windowSize - dataVSize) / 2));
 			rotationsShifts.add(((int) (millis() % (int) PI)));
 		}
@@ -448,17 +515,24 @@ public class Game extends PApplet {
 	}
 
 	/**
-	 * Draws a cylinder with given settings
+	 * Draws an obstacle with given settings
 	 * 
 	 * @param <code>baseR</code> the basis' radius
 	 * @param <code>h</code> the height
 	 * @param <code>sides</code> the number of sides
 	 */
-	void cylinder(float baseR, float h, int sides) {
+	void obstacle(float baseR, float h, int sides) {
 		pushMatrix();
 
 		translate(0, -plateHeight, 0);
+		
+		
 		/*
+		 * This commented part creates some very simple cylinders. We
+		 * used it before adding the Bottle object that we 3D-printed.
+		 * 
+		 * 
+		 * 
 		 * float angle; float[] x = new float[sides+1]; float[] z = new
 		 * float[sides+1];
 		 * 
@@ -492,18 +566,22 @@ public class Game extends PApplet {
 		 * endShape();
 		 */
 
-		shape(object);
-
+		if(canAddCylinder)
+			shape(texturedBottle);
+		else
+			shape(redBottle);
+		
 		popMatrix();
 	}
 
-	void drawCylinders() {
-		for (int i = 0; i < cylinders.size(); i++) {
-			PVector v = cylinders.get(i);
+	void drawObstacles() {
+		for (int i = 0; i < obstacles.size(); i++) {
+			PVector v = obstacles.get(i);
 			pushMatrix();
 			translate(v.x, v.y, v.z);
 			rotateY(rotationsShifts.get(i));
-			cylinder();
+			canAddCylinder = true;
+			obstacle();
 			popMatrix();
 		}
 	}
@@ -511,8 +589,8 @@ public class Game extends PApplet {
 	/**
 	 * Draws a cylinder with the initially-set parameters
 	 */
-	void cylinder() {
-		cylinder(cylinderBaseSize, cylinderHeight, cylinderResolution);
+	void obstacle() {
+		obstacle(cylinderBaseSize, cylinderHeight, cylinderResolution);
 	}
 
 	/**
