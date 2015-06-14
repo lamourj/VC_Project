@@ -421,7 +421,7 @@ public class Game extends PApplet {
 
 		float ellipseRadius = ballRadius * scale * 2;
 
-		topView.fill(color(255, 0, 0));
+		topView.fill(color(209, 198, 43));
 		topView.ellipse(x, z, ellipseRadius, ellipseRadius);
 
 		topView.endDraw();

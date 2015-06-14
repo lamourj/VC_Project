@@ -162,7 +162,7 @@ public class Ball {
 			drawVector(velocity, 10);
 		}
 
-		parent.fill(parent.color(188, 61, 219));
+		parent.fill(parent.color(209, 198, 43));
 		parent.sphere(radius);
 	}
 
