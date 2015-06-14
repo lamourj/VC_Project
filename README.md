@@ -1,5 +1,5 @@
 ### VisualComputing_Project CS-211 2015
-2014-15 Visual Computing Project for EPFL course CS-211 'Introduction to Visual Computing'.
+<i>2014-15 Visual Computing Project for EPFL course CS-211 'Introduction to Visual Computing'.</i>
 
 ##### INFO
 
