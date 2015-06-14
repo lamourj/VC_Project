@@ -1,5 +1,5 @@
 # VisualComputing_Project CS-211 2015
-2014-15 Visual Computing Project for EPFL course CS-211 'Introduction à l'informatique visuelle'.
+2014-15 Visual Computing Project for EPFL course CS-211 'Introduction to Visual Computing'.
 
 Implementing a game with data visualization, controlled either by mouse or webcam/video with a green Lego plate. Also includes some 3D design with Blender.
 
