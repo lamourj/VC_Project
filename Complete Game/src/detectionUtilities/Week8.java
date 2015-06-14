@@ -1,15 +1,12 @@
-/*
- *	Author:      Gilbert Maystre
- *	Date:        May 5, 2015
- */
-
-package cs211.imageprocessing;
+package detectionUtilities;
 
 import processing.core.PImage;
 import processing.core.PApplet;
+import static detectionUtilities.ImageProcessing.*;
 
-import static cs211.imageprocessing.ImageProcessing.*;
-
+/**
+ * @author Gilbert Maystre
+ */
 public final class Week8{
 
     private final PApplet dummyContext;

@@ -1,4 +1,4 @@
-package boardcontrol;
+package GameBase;
 
 import processing.core.PApplet;
 

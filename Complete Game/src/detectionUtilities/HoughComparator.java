@@ -1,4 +1,4 @@
-package cs211.imageprocessing;
+package detectionUtilities;
 
 import java.util.Comparator;
 

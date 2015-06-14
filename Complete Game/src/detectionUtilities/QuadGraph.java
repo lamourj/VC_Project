@@ -1,4 +1,4 @@
-package cs211.imageprocessing;
+package detectionUtilities;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -149,9 +149,7 @@ public class QuadGraph {
 	 */
 	public void drawQuad(PVector[] corners) {
 		if (corners == null) {
-			System.out.println("receveid smth null");
 			return;
-
 		}
 
 		dummyContext.quad(corners[0].x, corners[0].y, corners[1].x,

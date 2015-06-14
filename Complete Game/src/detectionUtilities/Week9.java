@@ -3,7 +3,7 @@
  *	Date:        May 12, 2015
  */
 
-package cs211.imageprocessing;
+package detectionUtilities;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-import static cs211.imageprocessing.ImageProcessing.*;
+import static detectionUtilities.ImageProcessing.*;
 
 public class Week9 {
 

@@ -8,12 +8,11 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
-import boardcontrol.HScrollbar;
-import cs211.imageprocessing.ImageProcessing;
+import detectionUtilities.ImageProcessing;
 
 /**
- * Main class of the whole game.
- * Project for CS-211 EPFL course: Introduction to Visual Computing, Spring 2015.
+ * Main class of the whole game. Project for CS-211 EPFL course: Introduction to
+ * Visual Computing, Spring 2015.
  * 
  * @author Martin Fontanet
  * @author Julien Lamour
@@ -27,9 +26,16 @@ public class Game extends PApplet {
 
 	/**
 	 * Define if the board is mouse-controlled or controlled by the input
-	 * (webcam).
+	 * (webcam or video).
 	 */
 	final static boolean IS_MOUSE_CONTROLLED = false;
+
+	/**
+	 * Define if the board is controlled by webcam (if set to <code>true</code>)
+	 * or by the default input video (if set to <code>false</code>). Only
+	 * relevant if <code>IS_MOUSE_CONTROLLED == false</code> !
+	 */
+	final static boolean IS_WEBCAM_CONTROLLED = false;
 
 	// Inclination of the board
 	float rx = 0;
@@ -100,7 +106,12 @@ public class Game extends PApplet {
 	// Input stream display
 	ImageProcessing inStream;
 
+	@SuppressWarnings("unused")
 	public void setup() {
+
+		if (IS_MOUSE_CONTROLLED && IS_WEBCAM_CONTROLLED)
+			throw new IllegalStateException(
+					"The game cannot be controlled by mouse and webcam simultaneoulsy. Please change IS_MOUSE_CONTROLLED and IS_WEBCAM_CONTROLLED");
 		startingTime = millis();
 		size(windowSize, windowSize, P3D);
 		this.ball = new Ball(this, ballRadius, plateHeight);
@@ -127,9 +138,17 @@ public class Game extends PApplet {
 		scores = new ArrayList<Integer>();
 		difficultyLevel = 4;
 
-		PFrame f = new PFrame();
-		f.setTitle("Camera stream");
-		fill(0);
+		if(!IS_MOUSE_CONTROLLED) {
+			PFrame f = new PFrame();
+			String s;
+			if(IS_WEBCAM_CONTROLLED)
+				s = "Camera stream";
+			else
+				s = "Movie stream";
+			
+			f.setTitle(s);
+			fill(0);
+		}
 	}
 
 	public void draw() {
@@ -140,6 +159,8 @@ public class Game extends PApplet {
 				10);
 		text("Difficulty level (edges' hit influence on your score) :"
 				+ difficultyLevel + "   (press y/x to adjust)", 0, 25);
+		
+		text("Press SHIFT + clic to add obstacles", 0, 40);
 		pushMatrix();
 
 		drawBackground();
@@ -364,8 +385,8 @@ public class Game extends PApplet {
 				moveSpeed++;
 
 		// Allows to play/pause the input video
-		if (key == ' ')
-			inStream.setPaused(!inStream.isPaused());
+		// if (key == ' ')
+		// inStream.setPaused(!inStream.isPaused());
 	}
 
 	public void keyReleased() {
@@ -500,13 +521,13 @@ public class Game extends PApplet {
 	 */
 	public boolean isPaused() {
 		return pause;
-		
+
 	}
-	
+
 	/**
-	 * The class PFrame (extending JFrame) is helpful to open two windows,
-	 * one dedicated for the game, while to second one shows the input
-	 * camera (or video) stream.
+	 * The class PFrame (extending JFrame) is helpful to open two windows, one
+	 * dedicated for the game, while to second one shows the input camera (or
+	 * video) stream.
 	 * 
 	 * @author Julien Lamour
 	 * 
@@ -514,16 +535,17 @@ public class Game extends PApplet {
 	 *
 	 */
 	public class PFrame extends JFrame {
-		
 
 		/**
 		 * Constructor for the {@link PFrame} class
 		 */
 		public PFrame() {
-			inStream = new ImageProcessing();
-			setBounds(100, 100, inStream.videoWidth, inStream.videoHeight);
-			add(inStream);
-			inStream.init();
+			if (!IS_MOUSE_CONTROLLED) {
+				inStream = new ImageProcessing(IS_WEBCAM_CONTROLLED);
+				setBounds(100, 100, inStream.videoWidth, inStream.videoHeight);
+				add(inStream);
+				inStream.init();
+			}
 			show();
 		}
 	}
